@@ -1,0 +1,18 @@
+= ICU Chess Ratings
+
+For calculating the ratings of players in a chess tournament.
+
+
+== Install
+
+  sudo gem install icu_ratings
+
+
+== Usage
+
+  Todo.
+
+
+== Author
+
+Mark Orr, Irish Chess Union (ICU[http://icu.ie]) rating officer.
