@@ -12,9 +12,9 @@ begin
     gem.homepage     = "http://github.com/sanichi/icu_ratings"
     gem.authors      = ["Mark Orr"]
     gem.email        = "mark.j.l.orr@googlemail.com"
-    gem.files        = FileList['[A-Z]*', '{lib,spec}/**/*', '.gitignore']
+    gem.files        = FileList['[A-Z]*', '{lib,spec}/**/*', '.gitignore', '.autotest']
     gem.has_rdoc     = true
-    gem.rdoc_options = "--charset=UTF-8"
+    gem.rdoc_options = ["--charset", "UTF-8"]
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError

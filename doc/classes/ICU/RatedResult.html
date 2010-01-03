@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: ICU::RatedResult</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">ICU::RatedResult</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/icu_ratings/result_rb.html">
+                lib/icu_ratings/result.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h2>Adding Results to Tournaments</h2>
+<p>
+You don&#8216;t create results directly with a constructor, instead, you
+add them to a tournament using the <em>add_result</em> method, giving the
+<a href="RatedResult.html#M000001">round</a> number, the player numbers and
+the <a href="RatedResult.html#M000003">score</a> of the first player
+relative to the second:
+</p>
+<pre>
+  t = ICU::RatedTournament.new
+  t.add_player(10)
+  t.add_player(20)
+  t.add_result(1, 10, 20, 'W')
+</pre>
+<p>
+The above example expresses the result that in <a
+href="RatedResult.html#M000001">round</a> 1 player 10 won against player
+20. An exception is raised if either of the two players does not already
+exist in the tournament, if either player already has a game with another
+<a href="RatedResult.html#M000002">opponent</a> in that <a
+href="RatedResult.html#M000001">round</a> or if the two players already
+have a different result against each other in that <a
+href="RatedResult.html#M000001">round</a>. Note that the result is added to
+both players: in the above example a win in <a
+href="RatedResult.html#M000001">round</a> 1 against player 20 is added to
+player 10&#8216;s results and a loss against player 10 in <a
+href="RatedResult.html#M000001">round</a> 1 is added to player 20&#8216;s
+results. It&#8216;s OK (but unnecessary) to add the same result again from
+the other player&#8216;s prespective as long as the <a
+href="RatedResult.html#M000003">score</a> is consistent.
+</p>
+<pre>
+  t.add_result(1, 20, 10, 'L')   # unnecessary (nothing would change) but would not cause an exception
+  t.add_result(1, 20, 10, 'D')   # inconsistent result - would raise an exception
+</pre>
+<h2>Specifying the Score</h2>
+<p>
+The method <em><a href="RatedResult.html#M000003">score</a></em> will
+always return a Float value (either 0.0, 0.5 or 1.0). When specifying a <a
+href="RatedResult.html#M000003">score</a> using the <em>add_result</em> of
+ICU::Tourmanent the same values can be used as can other, equally valid
+alternatives:
+</p>
+<table>
+<tr><td valign="top">win:</td><td>&quot;1&quot;, &quot;1.0&quot;, &quot;W&quot;, &quot;w&quot; (String), 1
+(Fixnum), 1.0 (Float)
+
+</td></tr>
+<tr><td valign="top">loss:</td><td>&quot;0&quot;, &quot;0.0&quot;, &quot;L&quot;, &quot;l&quot; (String), 0
+(Fixnum), 0.0 (Float)
+
+</td></tr>
+<tr><td valign="top">draw:</td><td>&quot;½&quot;, &quot;D&quot;, &quot;d&quot; (String), 0.5 (Float)
+
+</td></tr>
+</table>
+<p>
+Strings padded with whitespace also work (e.g. &quot; 1.0 &quot; and &quot;
+W &quot;).
+</p>
+<h2>Specifying the Players</h2>
+<p>
+As described above, one way to specify the two players is via player
+numbers. Equally possible is player objects:
+</p>
+<pre>
+  t = ICU::RatedTournament.new
+  p = t.add_player(10)
+  q = t.add_plater(20)
+  t.add_result(1, p, q, 'W')
+</pre>
+<p>
+Or indeed (although this is unnecessary):
+</p>
+<pre>
+  t = ICU::RatedTournament.new
+  t.add_player(10)
+  t.add_plater(20)
+  t.add_result(1, t.player(10), t.player(20), 'W')
+</pre>
+<p>
+A players cannot have a results against themselves:
+</p>
+<pre>
+  t.add_player(2, 10, 10, 'D')   # exception!
+</pre>
+<h2>Retrieving Results</h2>
+<p>
+Results belong to players (ICU::RatedPlayer objects) and are stored in an
+array accessed by the method <em>results</em>. Each result has a <em><a
+href="RatedResult.html#M000001">round</a></em> number, an <em><a
+href="RatedResult.html#M000002">opponent</a></em> object (also an
+ICU::RatedPlayer object) and a <em><a
+href="RatedResult.html#M000003">score</a></em> (1.0, 0.5 or 0.0):
+</p>
+<pre>
+  p = t.player(10)
+  p.results.size      # 1
+  r = p.results[0]
+  r.round             # 1
+  r.opponent.num      # 20
+  r.score             # 1.0 (Float)
+</pre>
+<p>
+The <em>results</em> method returns results in <a
+href="RatedResult.html#M000001">round</a> order, irrespective of what order
+they were added in:
+</p>
+<pre>
+  t = ICU::RatedTournament.new
+  [0,1,2,3,4].each { |num| t.add_player(num) }
+  [3,1].each { |rnd| t.add_result(rnd, 0, rnd, 'W') }
+  [4,2].each { |rnd| t.add_result(rnd, 0, rnd, 'L') }
+  t.player(0).results.map{ |r| r.round }.join(',')      # &quot;1,2,3,4&quot;
+</pre>
+<h2>Unrated Results</h2>
+<p>
+Results that are not for rating, such as byes, walkovers and defaults,
+should not be added to the tournament. Instead, players can simply have no
+results for certain rounds. Indeed, it&#8216;s even valid for players not
+to have any results at all (although, in that case, for those players, no
+new rating can be calculated from the tournament).
+</p>
+<h2>After the Tournament is Rated</h2>
+<p>
+The main rating calculations are avaiable from player methods (see
+ICU::RatedPlayer) but additional details are available via methods of each
+player&#8216;s individual results: <em><a
+href="RatedResult.html#M000004">expected_score</a></em>, <em><a
+href="RatedResult.html#M000005">rating_change</a></em>.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000004">expected_score</a>&nbsp;&nbsp;
+      <a href="#M000002">opponent</a>&nbsp;&nbsp;
+      <a href="#M000005">rating_change</a>&nbsp;&nbsp;
+      <a href="#M000001">round</a>&nbsp;&nbsp;
+      <a href="#M000003">score</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000004" class="method-detail">
+        <a name="M000004"></a>
+
+        <div class="method-heading">
+          <a href="RatedResult.src/M000004.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedResult.src/M000004.html');return false;">
+          <span class="method-name">expected_score</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+After the tournament has been rated, this returns the expected <a
+href="RatedResult.html#M000003">score</a> (between 0 and 1) for the player
+based on the rating difference with the <a
+href="RatedResult.html#M000002">opponent</a> scaled by 400. The standard
+Elo formula is used: 1/(1 + 10^(diff/400)).
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000002" class="method-detail">
+        <a name="M000002"></a>
+
+        <div class="method-heading">
+          <a href="RatedResult.src/M000002.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedResult.src/M000002.html');return false;">
+          <span class="method-name">opponent</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+The player&#8216;s <a href="RatedResult.html#M000002">opponent</a> (an
+instance of ICU::RatedPlayer).
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000005" class="method-detail">
+        <a name="M000005"></a>
+
+        <div class="method-heading">
+          <a href="RatedResult.src/M000005.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedResult.src/M000005.html');return false;">
+          <span class="method-name">rating_change</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+After the tournament has been rated, returns the change in rating due to
+this particular result. Only for rated players (returns <em>nil</em> for
+other types of players). Computed from the difference between actual and
+expected scores multiplied by the player&#8216;s K-factor. The sum of these
+changes is the overall rating change for rated players.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000001" class="method-detail">
+        <a name="M000001"></a>
+
+        <div class="method-heading">
+          <a href="RatedResult.src/M000001.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedResult.src/M000001.html');return false;">
+          <span class="method-name">round</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+The <a href="RatedResult.html#M000001">round</a> number.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000003" class="method-detail">
+        <a name="M000003"></a>
+
+        <div class="method-heading">
+          <a href="RatedResult.src/M000003.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedResult.src/M000003.html');return false;">
+          <span class="method-name">score</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+The player&#8216;s <a href="RatedResult.html#M000003">score</a> in this
+game (1.0, 0.5 or 0.0).
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: ICU::RatedTournament</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">ICU::RatedTournament</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/icu_ratings/tournament_rb.html">
+                lib/icu_ratings/tournament.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h2>Creating Tournaments</h2>
+<p>
+<a href="RatedTournament.html">ICU::RatedTournament</a> object are created
+directly.
+</p>
+<pre>
+  t = ICU::RatedTournament.new
+</pre>
+<p>
+They have one optional parameter called _:desc_ (short for description) the
+value of which can be any object but will, if utilized, typically be the
+name of the tournament as a string.
+</p>
+<pre>
+  t = ICU::RatedTournament.new(:desc =&gt; &quot;Irish Championships 2008&quot;)
+  puts t.desc                         # &quot;Irish Championships 2008&quot;
+</pre>
+<h2>Rating Tournaments</h2>
+<p>
+To rate a tournament, first add the <a
+href="RatedTournament.html#M000004">players</a> (see <a
+href="RatedPlayer.html">ICU::RatedPlayer</a> for details):
+</p>
+<pre>
+  t.add_player(1, :rating =&gt; 2534, :kfactor =&gt; 16)
+  # ...
+</pre>
+<p>
+Then add the results (see <a href="RatedResult.html">ICU::RatedResult</a>
+for details):
+</p>
+<pre>
+  t.add_result(1, 1, 2, 'W')
+  # ...
+</pre>
+<p>
+Then rate the tournament by calling the <em><a
+href="RatedTournament.html#M000003">rate!</a></em> method:
+</p>
+<pre>
+  t.rate!
+</pre>
+<p>
+Now the results of the rating calculations can be retrieved from the <a
+href="RatedTournament.html#M000004">players</a> in the tournement or their
+results. For example, <a href="RatedTournament.html#M000005">player</a>
+1&#8216;s <a href="RatedTournament.html#M000006">new</a> rating would be:
+</p>
+<pre>
+  t.player(1).new_rating
+</pre>
+<p>
+See <a href="RatedPlayer.html">ICU::RatedPlayer</a> and <a
+href="RatedResult.html">ICU::RatedResult</a> for more details.
+</p>
+<h2>Error Handling</h2>
+<p>
+Some of the above methods have the potential to raise RuntimeError
+exceptions. In the case of <em><a
+href="RatedTournament.html#M000001">add_player</a></em> and <em><a
+href="RatedTournament.html#M000002">add_result</a></em>, the use of invalid
+arguments would cause such an error. Theoretically, the <em><a
+href="RatedTournament.html#M000003">rate!</a></em> method could also throw
+an exception if the iterative algorithm it uses to estimate performance
+ratings of unrated <a href="RatedTournament.html#M000004">players</a>
+failed to converge. However, practical experience has shown that this is
+highly unlikely.
+</p>
+<p>
+Since exception throwing is how errors are signalled, you should arrange
+for them to be caught and handled in some suitable place in your code.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000001">add_player</a>&nbsp;&nbsp;
+      <a href="#M000002">add_result</a>&nbsp;&nbsp;
+      <a href="#M000006">new</a>&nbsp;&nbsp;
+      <a href="#M000005">player</a>&nbsp;&nbsp;
+      <a href="#M000004">players</a>&nbsp;&nbsp;
+      <a href="#M000003">rate!</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">desc</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000006" class="method-detail">
+        <a name="M000006"></a>
+
+        <div class="method-heading">
+          <a href="RatedTournament.src/M000006.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedTournament.src/M000006.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(opt={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create a <a href="RatedTournament.html#M000006">new</a>, empty (no <a
+href="RatedTournament.html#M000004">players</a>, no results) tournament.
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000001" class="method-detail">
+        <a name="M000001"></a>
+
+        <div class="method-heading">
+          <a href="RatedTournament.src/M000001.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedTournament.src/M000001.html');return false;">
+          <span class="method-name">add_player</span><span class="method-args">(num, args={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Add a <a href="RatedTournament.html#M000006">new</a> <a
+href="RatedTournament.html#M000005">player</a> to the tournament. Returns
+the instance of <a href="RatedPlayer.html">ICU::RatedPlayer</a> created.
+See <a href="RatedPlayer.html">ICU::RatedPlayer</a> for details.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000002" class="method-detail">
+        <a name="M000002"></a>
+
+        <div class="method-heading">
+          <a href="RatedTournament.src/M000002.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedTournament.src/M000002.html');return false;">
+          <span class="method-name">add_result</span><span class="method-args">(round, player, opponent, score)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Add a <a href="RatedTournament.html#M000006">new</a> result to the
+tournament. Two instances of <a
+href="RatedResult.html">ICU::RatedResult</a> are created. One is added to
+the first <a href="RatedTournament.html#M000005">player</a> and the other
+to the second <a href="RatedTournament.html#M000005">player</a>. The method
+returns <em>nil</em>. See <a href="RatedResult.html">ICU::RatedResult</a>
+for details.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000005" class="method-detail">
+        <a name="M000005"></a>
+
+        <div class="method-heading">
+          <a href="RatedTournament.src/M000005.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedTournament.src/M000005.html');return false;">
+          <span class="method-name">player</span><span class="method-args">(num)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Return a <a href="RatedTournament.html#M000005">player</a> (<a
+href="RatedPlayer.html">ICU::RatedPlayer</a>) given a <a
+href="RatedTournament.html#M000005">player</a> number (returns <em>nil</em>
+if the number is invalid).
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000004" class="method-detail">
+        <a name="M000004"></a>
+
+        <div class="method-heading">
+          <a href="RatedTournament.src/M000004.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedTournament.src/M000004.html');return false;">
+          <span class="method-name">players</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Return an array of all <a href="RatedTournament.html#M000004">players</a>,
+in order of <a href="RatedTournament.html#M000005">player</a> number.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000003" class="method-detail">
+        <a name="M000003"></a>
+
+        <div class="method-heading">
+          <a href="RatedTournament.src/M000003.html" target="Code" class="method-signature"
+            onclick="popupCode('RatedTournament.src/M000003.html');return false;">
+          <span class="method-name">rate!</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Rate the tournament. Called after all <a
+href="RatedTournament.html#M000004">players</a> and results have been
+added.
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

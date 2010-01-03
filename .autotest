@@ -4,5 +4,5 @@
 #
 Autotest.add_hook :initialize do |at|
   at.remove_mapping %r%^lib/(.*)\.rb$%
-  at.add_mapping(%r%^lib/chess_ratings/(.*)\.rb$%) { |_, m| "spec/#{m[1]}_spec.rb" }
+  at.add_mapping(%r%^lib/icu_ratings/(.*)\.rb$%) { |_, m| "spec/#{m[1]}_spec.rb" }
 end
