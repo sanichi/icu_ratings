@@ -3,8 +3,9 @@ require File.dirname(__FILE__) + '/spec_helper'
 module ICU
   describe RatedTournament do
     context "restrictions, or lack thereof, on attributes" do
-      it "a tournament can have an optional description, such as a name" do
+      it "a tournament can have an optional description, such as a name, but any object is allowed" do
         ICU::RatedTournament.new(:desc => 'Irish Championship 2010').desc.should == 'Irish Championship 2010'
+        ICU::RatedTournament.new(:desc => 1.0).desc.should be_an_instance_of(Float)
         ICU::RatedTournament.new.desc.should be_nil
       end
     end
@@ -82,7 +83,7 @@ module ICU
     context "#rate - corner case - tournament is empy" do
       it "should not throw an exception" do
         @t = ICU::RatedTournament.new
-        lambda { @t.rate }.should_not raise_error
+        lambda { @t.rate! }.should_not raise_error
       end
     end
 
@@ -110,7 +111,7 @@ module ICU
       end
 
       it "after the tournament is rated" do
-        @t.rate
+        @t.rate!
 
         @t.player(1).expected_score.should be_close(2.249, 0.001)
         @t.player(2).expected_score.should be_close(1.760, 0.001)
@@ -167,7 +168,7 @@ module ICU
 
         @t.add_result(2, 5, 6, 'L')
 
-        @t.rate
+        @t.rate!
       end
 
       it "should get same results as ICU rating database" do
@@ -211,7 +212,7 @@ module ICU
         @t.add_result(1, 1, 2, 'W')
         @t.add_result(2, 1, 2, 'W')
         @t.add_result(3, 1, 2, 'W')
-        @t.rate
+        @t.rate!
       end
 
       it "should get same results as ICU rating database" do
@@ -288,7 +289,7 @@ module ICU
         @t.add_result(8, 2, 19, 'D')
         @t.add_result(9, 2, 20, 'L')
 
-        @t.rate
+        @t.rate!
       end
 
       it "should not rate foreign players" do
@@ -437,7 +438,7 @@ module ICU
         # 16  DONNELLY, VINCENT      0      3:-  10:L   0:    0:    0:    0:
         @t.add_result(2, 16, 10, 'L')
 
-        @t.rate
+        @t.rate!
       end
 
       it "should agree with ICU database for rated players with results" do
@@ -516,7 +517,7 @@ module ICU
         @t.add_result(3, 3, 4, 'W')
         @t.add_result(3, 5, 6, 'W')
         @t.add_result(3, 7, 8, 'W')
-        @t.rate
+        @t.rate!
       end
 
       it "should agree with ICU rating database" do
@@ -561,7 +562,7 @@ module ICU
         @t.add_result(2, 4, 6, 'W')
         @t.add_result(3, 2, 3, 'W')
         @t.add_result(3, 5, 6, 'W')
-        @t.rate
+        @t.rate!
       end
 
       it "should agree with ICU rating database for rateable players" do

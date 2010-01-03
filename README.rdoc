@@ -1,17 +1,63 @@
 = ICU Chess Ratings
 
-For calculating the ratings of players in a chess tournament.
+For calculating the Elo ratings of players in a chess tournament. The software is a port
+the Irish Chess Union's existing rating software written in Microsoft Visual Basic and
+intended to replace it in the near future.
 
+The rating calculations are identical to FIDE's for tournaments that consist entirely
+of established players (with the exception of player bonuses, which can be turned off).
+However, the ICU has it's own peculiar way of dealing with unrated players (players
+with only a provisional rating or without any prior rating) which is not the same as
+FIDE's.
 
 == Install
 
   sudo gem install icu_ratings
 
-
 == Usage
 
-  Todo.
+First, create a new ICU::RatedTournament object:
 
+  t = ICU::RatedTournament.new(:desc => "Irish Championships 2008")
+
+Then add players (see ICU::RatedPlayer for details):
+
+  t.add_player(1, :rating => 2534, :desc => 'Alexander Baburin (7085)', :kfactor => 16)
+  t.add_player(2, :rating => 2525, :desc => 'Alon Greenfeld')  # foreign (non-ICU) rated player
+  t.add_player(8, :rating => 2084, :desc => 'Anthony Fox (456)', :kfactor => 24)
+  # ...
+
+Then add results (see ICU::RatedResult for details):
+
+  t.add_result(1, 1, 8, 'W')    # players 1 and 8 played in round 1, player 1 won
+  t.add_result(4, 2, 1, 'D')    # players 1 and 2 drew in round 4
+  # ...
+
+Then call the <em>rate!</em> method.
+
+  t.rate!
+
+If no exceptions have been raised yet, the tournament is now rated and the
+main results of the rating calculations can be extracted by querying the
+previously created player objects:
+
+  (1..32).each do |num|
+    player = t.player(num)
+    unless p.type == :foreign
+      puts "Name: #{t.desc}"
+      puts "Score: #{p.score}/#{p.results.size}"
+      puts "New Rating: #{p.new_rating.round}"
+    end
+  end
+  
+  # Name: Alexander Baburin (7085)
+  # Score: 8/9
+  # New Rating: 2558
+  # ...
+
+See ICU::RatedPlayer for further details. Further breakdown of the rating calculations
+are available, if desired, from the results belonging to each player. See ICU::RatedResult
+for more details.
 
 == Author
 
