@@ -78,10 +78,10 @@ The _results_ method returns results in round order, irrespective of what order 
 
 == Unrated Results
 
-Results that are not for rating, such as byes, walkovers and defaults, should not be added to the tournament.
-Instead, players can simply be missing results for certain rounds.
-Indeed, it's even valid for players not to have any results at all
-(although, in that case obviously, their ratings would not be affected by the tournament).
+Results that are not for rating, such as byes, walkovers and defaults, should not be
+added to the tournament. Instead, players can simply have no results for certain rounds.
+Indeed, it's even valid for players not to have any results at all (although, in that
+case, for those players, no new rating can be calculated from the tournament).
 
 == After the Tournament is Rated
 
@@ -108,8 +108,8 @@ _expected_score_, _rating_change_.
     end
     
     # After the tournament has been rated, this returns the expected score (between 0 and 1)
-    # based on the rating difference between player and opponent scaled by 400 (the standard
-    # Elo formula). For foreign players, whose rating is not calculated, _nil_ is returned.
+    # for the player based on the rating difference with the opponent scaled by 400.
+    # The standard Elo formula is used: 1/(1 + 10^(diff/400)).
     def expected_score
       @expected_score
     end
@@ -127,7 +127,7 @@ _expected_score_, _rating_change_.
       opponent_rating = opponent.full_rating? ? opponent.rating : opponent.performance
       if (player_rating && opponent_rating)
         @expected_score = 1 / (1 + 10 ** ((opponent_rating - player_rating) / 400.0))
-        @rating_change  = (@score - @expected_score) * player.kfactor if player.full_rating?
+        @rating_change  = (@score - @expected_score) * player.kfactor if player.type == :rated
       end
     end
 

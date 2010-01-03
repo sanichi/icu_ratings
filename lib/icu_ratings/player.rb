@@ -43,7 +43,7 @@ Rated players have a full rating and a K-factor and are added by including valid
 == Provisional Ratings
 
 Players that don't yet have a full rating but do have a provisonal rating estimated on some number
-of games played prior to the tournament are indicated by values for the _:rating_ and _:games_ parameters:
+of games played prior to the tournament are indicated by values for the _rating_ and _games_ parameters:
 
   p = t.add_player(4, :rating => 1600, :games => 10)
   p.type             # :provisional
@@ -54,10 +54,10 @@ should have a full rating.
 == Fixed Ratings
 
 Players with fixed ratings just have a rating - no K-factor or number of previous games.
-When the tournament is rated, these players will be skipped but their results will still count
-for the ratings of their opponents (unless they also have fixed ratings). This type is intended
-for players whose ratings are not ICU ratings. Typically they are foreign players with FIDE
-ratings who are not members of the ICU.
+When the tournament is rated, these players will have their tournament performance ratings
+calculated but the value returned by the method _new_rating_ will just be the rating they
+started with. Typically these are foreign players with FIDE ratings who are not members of
+the ICU and for whom ICU ratings are not desired.
 
   p = t.add_player(6, :rating => 2500)
   p.type             # :foreign
@@ -65,7 +65,7 @@ ratings who are not members of the ICU.
 == No Rating
 
 Unrated players who do not have any rated games at all are indicated by leaving out any values for
-_:rating_, _:kfactor_ or _:games_.
+_rating_, _kfactor_ or _games_.
 
   p = t.add_player(5)
   p.type             # :unrated
@@ -137,15 +137,14 @@ method.
     # After the tournament has been rated, this returns the sum of expected scores over all results.
     # Although this is calculated for provisional and unrated players it is not used to estimate their
     # new ratings. For rated players, this number times the K-factor gives the change in rating.
-    # It is zero for foreign players.
     def expected_score
       @results.inject(0.0) { |e, r| e + (r.expected_score || 0.0) }
     end
     
     # After the tournament has been rated, this returns the tournament rating performance for
-    # rated and unrated players. For provisional players it is the weighted average of the
-    # player's tournament performance and their previous games. For foreign players
-    # it is _nil_. For provisional and unrated players it is the same as _new_rating_.
+    # rated, unrated and foreign players. For provisional players it returns a weighted average
+    # of the player's tournament performance and their previous games. For provisional and
+    # unrated players it is the same as _new_rating_.
     def performance
       @performance
     end
@@ -181,7 +180,6 @@ method.
     end
    
     def rate! # :nodoc:
-      return if @type == :foreign
       @results.each { |r| r.rate!(self) }
     end
 

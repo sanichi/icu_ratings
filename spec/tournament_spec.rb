@@ -260,7 +260,6 @@ module ICU
         @t.add_player(10, :rating => 1982, :desc => 'Andersen, Carsten')
         @t.add_player(11, :rating => 2107, :desc => 'Gooding, Ian')
         @t.add_player(12, :rating => 2423, :desc => 'Dolezal, Radoslav')
-        @t.add_player(13, :rating => 1931, :desc => 'Pozzi, Claudio')
         @t.add_player(14, :rating => 1621, :desc => 'Srirhanzl, Radek')
         @t.add_player(15, :rating => 1779, :desc => 'Milfort, Vaclav')
         @t.add_player(16, :rating => 2209, :desc => 'Srba, Milan')
@@ -280,7 +279,7 @@ module ICU
         @t.add_result(9, 1, 11, 'D')
 
         @t.add_result(1, 2, 12, 'L')
-        @t.add_result(2, 2, 13, 'W')
+        @t.add_result(2, 2, 5,  'W')
         @t.add_result(3, 2, 14, 'L')
         @t.add_result(4, 2, 15, 'W')
         @t.add_result(5, 2, 16, 'L')
@@ -292,11 +291,40 @@ module ICU
         @t.rate!
       end
 
-      it "should not rate foreign players" do
+      it "foreign players should have no rating change but non-zero expected scores" do
         (3..20).each do |num|
+          unless num == 13
+            p = @t.player(num)
+            p.expected_score.should_not == 0.0
+            p.rating_change.should == 0.0
+            p.new_rating.should == p.rating
+          end
+        end
+      end
+      
+      it "foreign players should have tournament performnce ratings" do
+        [
+          [3,  2505.0],
+          [4,  2505.0],
+          [5,  1840.5],
+          [6,  2105.0],
+          [7,  2105.0],
+          [8,  1705.0],
+          [9,  2105.0],
+          [10, 1705.0],
+          [11, 2105.0],
+          [12, 2376.0],
+          [14, 2376.0],
+          [15, 1576.0],
+          [16, 2376.0],
+          [17, 1576.0],
+          [18, 1976.0],
+          [19, 1976.0],
+          [20, 2376.0],
+        ].each do |item|
+          num, performance = item
           p = @t.player(num)
-          p.expected_score.should == 0.0
-          p.rating_change.should == 0.0
+          p.performance.should == performance
         end
       end
 

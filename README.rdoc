@@ -43,16 +43,16 @@ previously created player objects:
 
   (1..32).each do |num|
     player = t.player(num)
-    unless p.type == :foreign
-      puts "Name: #{t.desc}"
-      puts "Score: #{p.score}/#{p.results.size}"
-      puts "New Rating: #{p.new_rating.round}"
-    end
+    puts "Name: #{t.desc}"
+    puts "Score: #{p.score}/#{p.results.size}"
+    puts "New Rating: #{p.new_rating.round}"
+    puts "Performance Rating: #{p.performance.round}"
   end
   
   # Name: Alexander Baburin (7085)
-  # Score: 8/9
+  # Score: 8.0/9
   # New Rating: 2558
+  # Performance Rating: 2607
   # ...
 
 See ICU::RatedPlayer for further details. Further breakdown of the rating calculations
