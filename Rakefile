@@ -12,7 +12,7 @@ begin
     gem.homepage         = "http://github.com/sanichi/icu_ratings"
     gem.authors          = ["Mark Orr"]
     gem.email            = "mark.j.l.orr@googlemail.com"
-    gem.files            = FileList['{lib,spec}/**/*', 'README.rdoc', 'LICENCE', '.gitignore', '.autotest']
+    gem.files            = FileList['{lib,spec}/**/*', 'README.rdoc', 'LICENCE', 'VERSION.yml', '.gitignore', '.autotest']
     gem.has_rdoc         = true
     gem.extra_rdoc_files = ['README.rdoc', 'LICENCE'],
     gem.rdoc_options     = ["--charset=utf-8"]
