@@ -5,23 +5,22 @@
 
 Gem::Specification.new do |s|
   s.name = %q{icu_ratings}
-  s.version = "0.2.0"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mark Orr"]
-  s.date = %q{2010-01-03}
+  s.date = %q{2010-01-04}
   s.description = %q{Build an object that represents a chess tournament then get it to calculate ratings of all the players.}
   s.email = %q{mark.j.l.orr@googlemail.com}
   s.extra_rdoc_files = [
-    "README.rdoc"
+    "LICENCE",
+     "README.rdoc"
   ]
   s.files = [
     ".autotest",
      ".gitignore",
      "LICENCE",
      "README.rdoc",
-     "Rakefile",
-     "VERSION.yml",
      "lib/icu_ratings.rb",
      "lib/icu_ratings/player.rb",
      "lib/icu_ratings/result.rb",
@@ -32,7 +31,7 @@ Gem::Specification.new do |s|
      "spec/tournament_spec.rb"
   ]
   s.homepage = %q{http://github.com/sanichi/icu_ratings}
-  s.rdoc_options = ["--charset", "UTF-8"]
+  s.rdoc_options = ["--charset=utf-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{For rating chess tournaments.}
