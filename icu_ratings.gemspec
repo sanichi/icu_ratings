@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{icu_ratings}
-  s.version = "0.2.5"
+  s.version = "0.2.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mark Orr"]
-  s.date = %q{2010-01-10}
+  s.date = %q{2010-01-16}
   s.description = %q{Build an object that represents a chess tournament then get it to calculate ratings of all the players.}
   s.email = %q{mark.j.l.orr@googlemail.com}
   s.extra_rdoc_files = [
