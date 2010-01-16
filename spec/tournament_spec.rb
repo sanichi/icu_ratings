@@ -79,6 +79,10 @@ module ICU
         lambda { @t.add_result(1, @p1, @p3, 'W') }.should raise_error(/inconsistent/)
         lambda { @t.add_result(1, @p3, @p2, 'W') }.should raise_error(/inconsistent/)
       end
+      
+      it "players cannot have results against themselves" do
+        lambda { @t.add_result(1, @p1, @p1, 'W') }.should raise_error(/against.*themsel(f|ves)/)
+      end
     end
 
     context "#rate - corner case - tournament is empy" do
