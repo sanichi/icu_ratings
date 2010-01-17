@@ -10,11 +10,20 @@ ICU::RatedTournament object are created directly.
 
   t = ICU::RatedTournament.new
 
-They have one optional parameter called _:desc_ (short for description) the value of which can be
+They have two optional parameters. One is called _desc_ (short for description) the value of which can be
 any object but will, if utilized, typically be the name of the tournament as a string.
 
-  t = ICU::RatedTournament.new(:desc => "Irish Championships 2008")
-  puts t.desc                         # "Irish Championships 2008"
+  t = ICU::RatedTournament.new(:desc => "Irish Championships 2010")
+  puts t.desc                         # "Irish Championships 2010"
+
+The other optional parameter is _start_ for the start date. A Date object or a string that can be
+parsed as a string can be used to set it. The European convention is preferred for dates like
+"03/06/2013" (3rd of June, not 6th of March). Attempting to set an invalid date will raise an
+exception.
+
+  t = ICU::RatedTournament.new(:start => "01/07/2010")
+  puts t.start.class                  # Date
+  puts t.start.to_s                   # "2010-07-01"
 
 == Rating Tournaments
 
@@ -55,6 +64,7 @@ to be caught and handled in some suitable place in your code.
 
   class RatedTournament
     attr_accessor :desc
+    attr_reader :start
 
     # Add a new player to the tournament. Returns the instance of ICU::RatedPlayer created.
     # See ICU::RatedPlayer for details.
@@ -94,14 +104,19 @@ to be caught and handled in some suitable place in your code.
       @player[num]
     end
 
+    # Set the start date. Raises exception on error.
+    def start=(date)
+      @start = ICU::Util.parsedate!(date)
+    end
+
     private
 
     # Create a new, empty (no players, no results) tournament.
     def initialize(opt={})
-      [:desc].each { |atr| self.send("#{atr}=", opt[atr]) unless opt[atr].nil? }
+      [:desc, :start].each { |atr| self.send("#{atr}=", opt[atr]) unless opt[atr].nil? }
       @player = Hash.new
     end
-    
+
     def performance_ratings
       @player.values.each { |p| p.init_performance }
       stable, count = false, 0

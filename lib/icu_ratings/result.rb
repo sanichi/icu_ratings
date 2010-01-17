@@ -98,24 +98,24 @@ _expected_score_, _rating_change_.
     def round
       @round
     end
-    
+
     # The player's opponent (an instance of ICU::RatedPlayer).
     def opponent
       @opponent
     end
-    
+
     # The player's score in this game (1.0, 0.5 or 0.0).
     def score
       @score
     end
-    
+
     # After the tournament has been rated, this returns the expected score (between 0 and 1)
     # for the player based on the rating difference with the opponent scaled by 400.
     # The standard Elo formula is used: 1/(1 + 10^(diff/400)).
     def expected_score
       @expected_score
     end
-    
+
     # After the tournament has been rated, returns the change in rating due to this particular
     # result. Only for rated players (returns _nil_ for other types of players). Computed from
     # the difference between actual and expected scores multiplied by the player's K-factor.
@@ -123,7 +123,7 @@ _expected_score_, _rating_change_.
     def rating_change
       @rating_change
     end
-    
+
     def rate!(player) # :nodoc:
       player_rating   = player.full_rating?   ? player.rating   : player.performance
       opponent_rating = opponent.full_rating? ? opponent.rating : opponent.performance

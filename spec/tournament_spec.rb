@@ -9,6 +9,22 @@ module ICU
         ICU::RatedTournament.new(:desc => 1.0).desc.should be_an_instance_of(Float)
         ICU::RatedTournament.new.desc.should be_nil
       end
+
+      it "a tournament can have an optional start date" do
+        ICU::RatedTournament.new(:start => '2010-01-01').start.should be_a(Date)
+        ICU::RatedTournament.new(:start => '03/06/2013').start.to_s.should == '2013-06-03'
+        ICU::RatedTournament.new(:start => Date.parse('1955-11-09')).start.to_s.should == '1955-11-09'
+        ICU::RatedTournament.new.start.should be_nil
+        lambda { ICU::RatedTournament.new(:start => 'error') }.should raise_error
+      end
+
+      it "should have setters for the optional arguments" do
+        t = ICU::RatedTournament.new
+        t.desc=("Championship")
+        t.start=("2010-07-01")
+        t.desc.should == "Championship"
+        t.start.should == Date.parse("2010-07-01")
+      end
     end
 
     context "#players and #player" do
@@ -79,7 +95,7 @@ module ICU
         lambda { @t.add_result(1, @p1, @p3, 'W') }.should raise_error(/inconsistent/)
         lambda { @t.add_result(1, @p3, @p2, 'W') }.should raise_error(/inconsistent/)
       end
-      
+
       it "players cannot have results against themselves" do
         lambda { @t.add_result(1, @p1, @p1, 'W') }.should raise_error(/against.*themsel(f|ves)/)
       end
@@ -191,7 +207,7 @@ module ICU
           p.new_rating.should be_close(new_rating, 0.5)
         end
       end
-      
+
       it "tournament performances are not the same as ICU year-to-date performances" do
         [
           [1, 1867, 1761],
@@ -306,7 +322,7 @@ module ICU
           end
         end
       end
-      
+
       it "foreign players should have tournament performnce ratings" do
         [
           [3,  2505.0],
@@ -571,7 +587,7 @@ module ICU
         end
       end
     end
-    
+
     context "#rate - a made-up tournament that includes a group of unrateable players" do
       #   1   Orr, Mark               1350    2      2:W   3:W   0:-
       #   2   Coughlan, Anne          251     1      1:L   0:-   3:W
@@ -610,7 +626,7 @@ module ICU
           p.new_rating.should be_close(new_rating, 0.5)
         end
       end
-      
+
       it "should not rate players that have no rateable games" do
         [4, 5, 6].each do |num|
           p = @t.player(num)

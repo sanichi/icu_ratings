@@ -10,7 +10,7 @@ module ICU
         @f = ICU::RatedPlayer.new(3, :rating => 2500)
         @u = ICU::RatedPlayer.new(4)
       end
-      
+
       it "rated players have a rating and k-factor" do
         @r.num.should     == 1
         @r.rating.should  == 2000
@@ -19,7 +19,7 @@ module ICU
         @r.type.should    == :rated
         @r.full_rating?.should be_true
       end
-      
+
       it "provisionally rated players have a rating and number of games" do
         @p.num.should     == 2
         @p.rating.should  == 1500
@@ -28,7 +28,7 @@ module ICU
         @p.type.should    == :provisional
         @p.full_rating?.should be_false
       end
-      
+
       it "foreign players just have a rating" do
         @f.num.should     == 3
         @f.rating.should  == 2500
@@ -37,7 +37,7 @@ module ICU
         @f.type.should    == :foreign
         @f.full_rating?.should be_true
       end
-      
+
       it "unrated players just have nothing other than their number" do
         @u.num.should     == 4
         @u.rating.should  be_nil
@@ -46,7 +46,7 @@ module ICU
         @u.type.should    == :unrated
         @u.full_rating?.should be_false
       end
-      
+
       it "other combinations are invalid" do
         [
           { :games => 10 },
@@ -56,7 +56,7 @@ module ICU
         ].each { |opts| lambda { ICU::RatedPlayer.new(1, opts) }.should raise_error(/invalid.*combination/i) }
       end
     end
-    
+
     context "#new - miscellaneous" do
       it "attribute values can be given by strings, even when space padded" do
         p = ICU::RatedPlayer.new(' 1 ', :kfactor => ' 10.0 ', :rating => ' 1000 ')
@@ -81,19 +81,19 @@ module ICU
         lambda { ICU::RatedPlayer.new(1, :rating =>  0) }.should_not raise_error
         lambda { ICU::RatedPlayer.new(1, :rating => -1) }.should_not raise_error
       end
-      
+
       it "ratings are stored as floats but can be specified with an integer" do
         ICU::RatedPlayer.new(1, :rating => 1234.5).rating.should == 1234.5
         ICU::RatedPlayer.new(1, :rating => 1234.0).rating.should == 1234
         ICU::RatedPlayer.new(1, :rating =>   1234).rating.should == 1234
       end
-      
+
       it "the number of games shoud not exceed 20" do
         lambda { ICU::RatedPlayer.new(1, :rating => 1000, :games => 19) }.should_not raise_error
         lambda { ICU::RatedPlayer.new(1, :rating => 1000, :games => 20) }.should raise_error
         lambda { ICU::RatedPlayer.new(1, :rating => 1000, :games => 21) }.should raise_error
       end
-      
+
       it "a description, such as a name, but can be any object, is optional" do
         ICU::RatedPlayer.new(1, :desc => 'Fischer, Robert').desc.should == 'Fischer, Robert'
         ICU::RatedPlayer.new(1, :desc => 1).desc.should be_an_instance_of(Fixnum)
@@ -124,7 +124,7 @@ module ICU
         @p.results[1].should == @r2
         @p.results[2].should == @r3
       end
-      
+
       it "the total score should stay consistent with results as they are added" do
         @p.score.should == 0.0
         @p.add_result(@r1)
@@ -135,18 +135,18 @@ module ICU
         @p.score.should == 1.5
       end
     end
-    
+
     context "Rdoc examples" do
       before(:each) do
         @t = ICU::RatedTournament.new
         @t.add_player(1)
       end
-      
+
       it "the same player number can't be added twice" do
         lambda { @t.add_player(2) }.should_not raise_error
         lambda { @t.add_player(2) }.should raise_error
       end
-      
+
       it "parameters can be specified using strings, even with whitespace padding" do
         p = @t.add_player("  0  ", :rating => "  2000.5  ", :kfactor => "  20.5  ")
         p.num.should == 0
@@ -159,11 +159,11 @@ module ICU
         p.games.should == 15
         p.games.should be_an_instance_of(Fixnum)
       end
-      
+
       it "the games parameter should not exceed 20" do
         lambda { @t.add_player(2, :rating => 1500, :games => 20 ) }.should raise_error
       end
-      
+
       it "adding different player types" do
         p = @t.add_player(3, :rating => 2000, :kfactor => 16)
         p.type.should == :rated

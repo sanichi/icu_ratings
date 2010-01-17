@@ -7,7 +7,7 @@ module ICU
       before(:all) do
         @o = ICU::RatedPlayer.new(2)
       end
-      
+
       it "needs a round, opponent and score (win, loss or draw)" do
         r = ICU::RatedResult.new(1, @o, 'W')
         r.round.should == 1
@@ -20,7 +20,7 @@ module ICU
       before(:each) do
         @p = ICU::RatedPlayer.new(2)
       end
-      
+
       it "round numbers must be positive" do
         lambda { ICU::RatedResult.new(0, 1, 'W') }.should raise_error(/invalid.*round number/i)
         lambda { ICU::RatedResult.new(-1, 1, 'W') }.should raise_error(/invalid.*round number/i)
@@ -43,7 +43,7 @@ module ICU
       before(:each) do
         @p = ICU::RatedPlayer.new(2)
       end
-      
+
       it "should give the score from the opponent's perspective" do
         ICU::RatedResult.new(1, @p, 'W').opponents_score.should == 0.0
         ICU::RatedResult.new(1, @p, 'L').opponents_score.should == 1.0
@@ -69,7 +69,7 @@ module ICU
         (@r1 == @r5).should be_false
       end
     end
-    
+
     context "Rdoc examples" do
       before(:each) do
         @t = ICU::RatedTournament.new
@@ -89,16 +89,16 @@ module ICU
         @t.player(10).results.size.should == 1
         @t.player(20).results.size.should == 1
       end
-      
+
       it "adding results against other players in the same round will cause an exception" do
         lambda { @t.add_result(1, 10, 30, 'W') }.should raise_error(/inconsistent/i)
         lambda { @t.add_result(1, 10, 20, 'L') }.should raise_error(/inconsistent/i)
       end
-      
+
       it "a player cannot have a result against himself/herself" do
         lambda { @t.add_result(2, 10, 10, 'D') }.should raise_error(/players.*cannot.*sel[fv]/i)
       end
-      
+
       it "results are returned in score order irrespecive of the order they're added in" do
         @t.player(0).results.map{ |r| r.round }.join(',').should == "1,2,3,4"
       end

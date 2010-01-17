@@ -71,7 +71,7 @@ _rating_, _kfactor_ or _games_.
 
   p = t.add_player(5)
   p.type             # :unrated
-  
+
 == Invalid Combinations
 
 The above four types of players (_rated_, _provisional_, _unrated_, _foreign_) are the only
@@ -142,7 +142,7 @@ method.
     def expected_score
       @results.inject(0.0) { |e, r| e + (r.expected_score || 0.0) }
     end
-    
+
     # After the tournament has been rated, this returns the tournament rating performance for
     # rated, unrated and foreign players. For provisional players it returns a weighted average
     # of the player's tournament performance and their previous games. For provisional and
@@ -150,7 +150,7 @@ method.
     def performance
       @performance
     end
-    
+
     # Returns an array of the player's results (ICU::RatedResult) in round order.
     def results
       @results
@@ -160,12 +160,12 @@ method.
     def score
       @results.inject(0.0) { |e, r| e + r.score }
     end
-    
+
     # Returns the type of player as a symbol: one of _rated_, _provisional_, _unrated_ or _foreign_.
     def type
       @type
     end
-    
+
     def add_result(result) # :nodoc:
       raise "invalid result (#{result.class})" unless result.is_a? ICU::RatedResult
       raise "players cannot score results against themselves" if self == result.opponent
@@ -180,7 +180,7 @@ method.
       @results << result
       @results.sort!{ |a,b| a.round <=> b.round }
     end
-   
+
     def rate! # :nodoc:
       @results.each { |r| r.rate!(self) }
     end
