@@ -158,6 +158,13 @@ module ICU
       it "should otherwise return 24" do
         ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-01-01', :joined => '2002-01-01').should == 24
       end
+      
+      it "should throw an exception if required information is missing" do
+        lambda { ICU::RatedPlayer.kfactor(:start => '2010-07-10', :dob => '1989-01-01', :joined => '2002-01-01') }.should raise_error(/missing.*rating/)
+        lambda { ICU::RatedPlayer.kfactor(:rating => 2000, :dob => '1989-01-01', :joined => '2002-01-01') }.should raise_error(/missing.*start/)
+        lambda { ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :joined => '2002-01-01') }.should raise_error(/missing.*dob/)
+        lambda { ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-01-01') }.should raise_error(/missing.*join/)
+      end
     end
 
     context "Rdoc examples" do

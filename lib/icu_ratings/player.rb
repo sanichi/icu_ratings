@@ -191,6 +191,7 @@ method.
 
     # Calculate a K-factor according to ICU rules.
     def self.kfactor(args)
+      %w{rating start dob joined}.each { |a| raise "missing #{a} for K-factor calculation" unless args[a.to_sym] }
       case
       when args[:rating] >= 2100 then
         16
