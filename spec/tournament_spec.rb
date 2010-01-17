@@ -27,6 +27,32 @@ module ICU
       end
     end
 
+    context "#add_player and calculation of K-factor" do
+      before(:each) do
+        @t = ICU::RatedTournament.new(:start => "2010-07-10")
+      end
+
+      it "should set a K-factor of 16 for players with rating >= 2100" do
+        @p = @t.add_player(1, :rating => 2200, :kfactor => { :dob => "1955-11-09", :joined => "1976-09-01" })
+        @p.kfactor.should == 16
+      end
+
+      it "should set a K-factor of 40 for players with rating < 2100 and age < 21" do
+        @p = @t.add_player(1, :rating => 2000, :kfactor => { :dob => "1995-01-10", :joined => "2009-09-01" })
+        @p.kfactor.should == 40
+      end
+
+      it "should set a K-factor of 32 for players with rating < 2100, age >= 21 and experience < 8" do
+        @p = @t.add_player(1, :rating => 2000, :kfactor => { :dob => "1975-01-10", :joined => "2005-09-01" })
+        @p.kfactor.should == 32
+      end
+
+      it "should set a K-factor of 24 for players with rating < 2100, age >= 21 and experience >= 8" do
+        @p = @t.add_player(1, :rating => 2000, :kfactor => { :dob => "1975-01-10", :joined => "1995-09-01" })
+        @p.kfactor.should == 24
+      end
+    end
+
     context "#players and #player" do
       before(:each) do
         @t = ICU::RatedTournament.new

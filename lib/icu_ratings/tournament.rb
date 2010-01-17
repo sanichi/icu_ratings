@@ -70,6 +70,7 @@ to be caught and handled in some suitable place in your code.
     # See ICU::RatedPlayer for details.
     def add_player(num, args={})
       raise "player with number #{num} already exists" if @player[num]
+      args[:kfactor] = ICU::RatedPlayer.kfactor(args[:kfactor].merge({ :start => start, :rating => args[:rating] })) if args[:kfactor].is_a?(Hash)
       @player[num] = ICU::RatedPlayer.new(num, args)
     end
 

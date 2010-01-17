@@ -136,6 +136,30 @@ module ICU
       end
     end
 
+    context "calculation of K-factor" do
+      it "should return 16 for players 2100 and above" do
+        ICU::RatedPlayer.kfactor(:rating => 2101, :start => '2010-07-10', :dob => '1955-11-09', :joined => '1974-01-01').should == 16
+        ICU::RatedPlayer.kfactor(:rating => 2100, :start => '2010-07-10', :dob => '1955-11-09', :joined => '1974-01-01').should == 16
+        ICU::RatedPlayer.kfactor(:rating => 2099, :start => '2010-07-10', :dob => '1955-11-09', :joined => '1974-01-01').should_not == 16
+      end
+
+      it "should otherwise return 40 for players aged under 21 at the start of the tournament" do
+        ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-07-11', :joined => '1999-01-01').should == 40
+        ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-07-10', :joined => '1999-01-01').should_not == 40
+        ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-07-09', :joined => '1999-01-01').should_not == 40
+      end
+
+      it "should otherwise return 32 for players with under 8 years experience at the start of the tournament" do
+        ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-01-01', :joined => '2002-07-11').should == 32
+        ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-01-01', :joined => '2002-07-10').should_not == 32
+        ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-01-01', :joined => '2002-07-09').should_not == 32
+      end
+
+      it "should otherwise return 24" do
+        ICU::RatedPlayer.kfactor(:rating => 2000, :start => '2010-07-10', :dob => '1989-01-01', :joined => '2002-01-01').should == 24
+      end
+    end
+
     context "Rdoc examples" do
       before(:each) do
         @t = ICU::RatedTournament.new

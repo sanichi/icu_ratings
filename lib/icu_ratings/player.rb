@@ -91,6 +91,29 @@ all these parameters can be specified using strings, even when padded with white
   p.rating         # 2000.5 (Float)
   p.kfactor        # 20.5 (Float)
 
+== Calculation of K-factors
+
+Rather than pre-calculating the value to set for a rated player's K-factor, the RatedPlayer class can itself
+calculate K-factors if the releavant information is supplied. ICU K-factors depend not only on a player's
+rating, but also on their age and experience. Therefore, supply a hash, instead of a numerical value, for the
+_kfactor_ attribute with values set for date-of-birth (_dob_) and date joined (_joined_):
+
+  t = Tournament.new(:start => "2010-07-10")
+  p = t.add_player(1, :rating => 2225, :kfactor => { :dob => "1993-12-20", :joined => "2004-11-28" })
+  p.kfactor        # 16.0
+
+For this to work the tournament's optional start date must be set to enable the player's age and
+experience at the start of the tournament be to calculated. The ICU K-factor rules are:
+
+* 16 for players rated 2100 and over, otherwise
+* 40 for players aged under 21, otherwise
+* 32 for players who have been members for less than 8 years, otherwise
+* 24
+
+If you want to calculate K-factors accrding to some other, non-ICU scheme, then override the
+static method _kfactor_ of the RatedPlayer class and pass in a hash of whatever key-value pairs
+it requires as the value associated with _kfactor_ key in the _add_player_ method.
+
 == Description Parameter
 
 There is one other optional parameter, _desc_ (short for "description"). It has no effect on player
@@ -164,6 +187,20 @@ method.
     # Returns the type of player as a symbol: one of _rated_, _provisional_, _unrated_ or _foreign_.
     def type
       @type
+    end
+
+    # Calculate a K-factor according to ICU rules.
+    def self.kfactor(args)
+      case
+      when args[:rating] >= 2100 then
+        16
+      when ICU::Util.age(args[:dob], args[:start]) < 21 then
+        40
+      when ICU::Util.age(args[:joined], args[:start]) < 8 then
+        32
+      else
+        24
+      end
     end
 
     def add_result(result) # :nodoc:
