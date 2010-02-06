@@ -125,9 +125,9 @@ _expected_score_, _rating_change_.
     end
 
     def rate!(player) # :nodoc:
-      player_rating   = player.full_rating?   ? player.rating   : player.performance
-      opponent_rating = opponent.full_rating? ? opponent.rating : opponent.performance
-      if (player_rating && opponent_rating)
+      player_rating   = player.full_rating?   ? player.rating         : player.performance
+      opponent_rating = opponent.full_rating? ? opponent.bonus_rating : opponent.performance
+      if player_rating && opponent_rating
         @expected_score = 1 / (1 + 10 ** ((opponent_rating - player_rating) / 400.0))
         @rating_change  = (@score - @expected_score) * player.kfactor if player.type == :rated
       end

@@ -6,17 +6,19 @@ module ICU
 
 == Creating Tournaments
 
-ICU::RatedTournament object are created directly.
+ICU::RatedTournament objects are created directly.
 
   t = ICU::RatedTournament.new
 
-They have two optional parameters. One is called _desc_ (short for description) the value of which can be
-any object but will, if utilized, typically be the name of the tournament as a string.
+They have some optional parameters which can be set via the constructor or by calling
+the same-named setter methods. One is called _desc_ (short for description) the value
+of which can be any object but will, if utilized, typically be the name of the
+tournament as a string.
 
   t = ICU::RatedTournament.new(:desc => "Irish Championships 2010")
   puts t.desc                         # "Irish Championships 2010"
 
-The other optional parameter is _start_ for the start date. A Date object or a string that can be
+Another optional parameter is _start_ for the start date. A Date object or a string that can be
 parsed as a string can be used to set it. The European convention is preferred for dates like
 "03/06/2013" (3rd of June, not 6th of March). Attempting to set an invalid date will raise an
 exception.
@@ -24,6 +26,15 @@ exception.
   t = ICU::RatedTournament.new(:start => "01/07/2010")
   puts t.start.class                  # Date
   puts t.start.to_s                   # "2010-07-01"
+
+Also, there is the option _no_bonuses_. Bonuses are a feature of the ICU rating system. If you are
+rating a non-ICU tournament (such as a FIDE tournament) where bonues are not awarded use this option.
+
+  t = ICU::RatedTournament.new(:desc => 'Linares', :start => "07/02/2009", :no_bonuses => true)
+
+Note, however, that the ICU system also has its own unique way of treating provisional, unrated and
+foreign players, so the only FIDE tournaments that can be rated using this software are those that
+consist solely of rated players.
 
 == Rating Tournaments
 
@@ -54,8 +65,8 @@ Some of the above methods have the potential to raise RuntimeError exceptions.
 In the case of _add_player_ and _add_result_, the use of invalid arguments
 would cause such an error. Theoretically, the <em>rate!</em> method could also throw an
 exception if the iterative algorithm it uses to estimate performance ratings
-of unrated players failed to converge. However, practical experience has shown that
-this is highly unlikely.
+of unrated players failed to converge. However an instance of non-convergence
+has yet to be observed in practice.
 
 Since exception throwing is how errors are signalled, you should arrange for them
 to be caught and handled in some suitable place in your code.
@@ -64,7 +75,7 @@ to be caught and handled in some suitable place in your code.
 
   class RatedTournament
     attr_accessor :desc
-    attr_reader :start
+    attr_reader :start, :no_bonuses
 
     # Add a new player to the tournament. Returns the instance of ICU::RatedPlayer created.
     # See ICU::RatedPlayer for details.
@@ -91,8 +102,14 @@ to be caught and handled in some suitable place in your code.
 
     # Rate the tournament. Called after all players and results have been added.
     def rate!
-      performance_ratings
+      players.each { |p| p.init }
+      performance_ratings(30)
       players.each { |p| p.rate! }
+      if !no_bonuses && calculate_bonuses > 0
+        players.each { |p| p.rate! }
+        performance_ratings(1)
+        calculate_bonuses
+      end
     end
 
     # Return an array of all players, in order of player number.
@@ -110,23 +127,33 @@ to be caught and handled in some suitable place in your code.
       @start = ICU::Util.parsedate!(date)
     end
 
+    # Set whether there are no bonuses (false by default)
+    def no_bonuses=(no_bonuses)
+      @no_bonuses = no_bonuses ? true : false
+    end
+
     private
 
     # Create a new, empty (no players, no results) tournament.
     def initialize(opt={})
-      [:desc, :start].each { |atr| self.send("#{atr}=", opt[atr]) unless opt[atr].nil? }
+      [:desc, :start, :no_bonuses].each { |atr| self.send("#{atr}=", opt[atr]) unless opt[atr].nil? }
       @player = Hash.new
     end
 
-    def performance_ratings
-      @player.values.each { |p| p.init_performance }
+    # Calculate performance ratings either iteratively or with just one sweep for bonus calculations.
+    def performance_ratings(max)
       stable, count = false, 0
-      while !stable && count < 30
+      while !stable && count < max
         @player.values.each { |p| p.estimate_performance }
         stable = @player.values.inject(true) { |ok, p| p.update_performance && ok }
         count+= 1
       end
-      raise "performance rating estimation did not converge" unless stable
+      raise "performance rating estimation did not converge" if max > 1 && !stable
+    end
+
+    # Calculate bonuses for all players and return the number who got one.
+    def calculate_bonuses
+      @player.values.inject(0) { |t,p| t + (p.calculate_bonus ? 1 : 0) }
     end
   end
 end

@@ -614,6 +614,259 @@ module ICU
       end
     end
 
+    context "#rate - a tournament with only rated players that included one player who received a bonus" do
+      # 1   Howley, Kieran  3509    4      2:W   3:W   4:L   5:W   6:W
+      # 2   O'Brien, Pat    12057   3      1:L   3:L   4:W   5:W   6:W
+      # 3   Eyers, Michael  6861    2.5    1:L   2:W   4:L   5:W   6:D
+      # 4   Guinan, Sean    12161   2.5    1:W   2:L   3:W   5:L   6:D
+      # 5   Cooke, Frank    10771   1.5    1:L   2:L   3:L   4:W   6:D
+      # 6   Benson, Nicola  6916    1.5    1:L   2:L   3:D   4:D   5:D
+      before(:all) do
+        @t = ICU::RatedTournament.new(:desc => "Drogheda Club Championship, 2009, Section G")
+        @t.add_player(1, :desc => 'Howley, Kieran', :rating => 1046, :kfactor => 24)
+        @t.add_player(2, :desc => "O'Brien, Pat",   :rating =>  953, :kfactor => 24)
+        @t.add_player(3, :desc => 'Eyers, Michael', :rating =>  922, :kfactor => 32)
+        @t.add_player(4, :desc => 'Guinan, Sean',   :rating =>  760, :kfactor => 40)
+        @t.add_player(5, :desc => 'Cooke, Frank',   :rating =>  825, :kfactor => 32)
+        @t.add_player(6, :desc => 'Benson, Nicola', :rating => 1002, :kfactor => 32)
+
+        @t.add_result(1, 1, 6, 'W')
+        @t.add_result(1, 2, 5, 'W')
+        @t.add_result(1, 3, 4, 'L')
+        @t.add_result(2, 6, 4, 'D')
+        @t.add_result(2, 5, 3, 'L')
+        @t.add_result(2, 1, 2, 'W')
+        @t.add_result(3, 2, 6, 'W')
+        @t.add_result(3, 3, 1, 'L')
+        @t.add_result(3, 4, 5, 'L')
+        @t.add_result(4, 6, 5, 'D')
+        @t.add_result(4, 1, 4, 'L')
+        @t.add_result(4, 2, 3, 'L')
+        @t.add_result(5, 3, 6, 'D')
+        @t.add_result(5, 4, 2, 'L')
+        @t.add_result(5, 5, 1, 'L')
+
+        @t.rate!
+      end
+
+      it "should agree with ICU rating database" do
+        [
+          [1, 4.0, 3.43, 1060,  0], # Howley
+          [2, 3.0, 2.70,  960,  0], # O'Brien
+          [3, 2.5, 2.44,  924,  0], # Eyers
+          [4, 2.5, 1.30,  824, 16], # Guinan
+          [5, 1.5, 1.67,  819,  0], # Cooke
+          [6, 1.5, 3.09,  951,  0], # Benson
+        ].each do |item|
+          num, score, expected_score, new_rating, bonus = item
+          p = @t.player(num)
+          p.score.should == score
+          p.expected_score.should be_close(expected_score, 0.01)
+          p.new_rating.should be_close(new_rating, 0.5)
+          p.bonus.should == bonus
+        end
+      end
+    end
+
+    context "#rate - a tournament with one rated player who got a bonus and the rest foreigners" do
+      # 1   Magee, Ronan          10470   6      8:L   0:+   3:W   0:+   5:L   7:W   6:W   4:W   2:L
+      # 2   Antal Tibor, Kende    17014   1      0:    0:    0:    0:    0:    0:    0:    0:    1:W
+      # 3   Arsic, Djordje        17015   0      0:    0:    1:L   0:    0:    0:    0:    0:    0:
+      # 4   Donchenko, Alexander  17016   0      0:    0:    0:    0:    0:    0:    0:    1:L   0:
+      # 5   Emdin, Mark           17017   1      0:    0:    0:    0:    1:W   0:    0:    0:    0:
+      # 6   Lushnikov, Evgeny     17018   0      0:    0:    0:    0:    0:    0:    1:L   0:    0:
+      # 7   Pulpan, Jakub         17019   0      0:    0:    0:    0:    0:    1:L   0:    0:    0:
+      # 8   Toma, Radu-Cristian   17020   1      1:W   0:    0:    0:    0:    0:    0:    0:    0:
+      before(:all) do
+        @t = ICU::RatedTournament.new(:desc => "European Youth Chess Championships, 2008")
+        @t.add_player(1, :desc => 'Magee, Ronan',         :rating => 1667, :kfactor => 40)
+        @t.add_player(2, :desc => "Antal Tibor, Kende",   :rating => 2036)
+        @t.add_player(3, :desc => 'Arsic, Djordje',       :rating => 1790)
+        @t.add_player(4, :desc => 'Donchenko, Alexander', :rating => 1832)
+        @t.add_player(5, :desc => 'Emdin, Mark',          :rating => 1832)
+        @t.add_player(6, :desc => 'Lushnikov, Evgeny',    :rating => 1939)
+        @t.add_player(7, :desc => 'Pulpan, Jakub',        :rating => 1955)
+        @t.add_player(8, :desc => 'Toma, Radu-Cristian',  :rating => 1893)
+
+        @t.add_result(1, 1, 8, 'L')
+        @t.add_result(3, 1, 3, 'W')
+        @t.add_result(5, 1, 5, 'L')
+        @t.add_result(6, 1, 7, 'W')
+        @t.add_result(7, 1, 6, 'W')
+        @t.add_result(8, 1, 4, 'W')
+        @t.add_result(9, 1, 2, 'L')
+
+        @t.rate!
+      end
+
+      it "should agree with ICU rating database except for new ratings of foreigners" do
+        [
+          [1, 4.0, 1.54, 1954], # Magee
+          [2, 1.0, 0.76, 2236], # Antal
+          [3, 0.0, 0.43, 1436], # Arsic
+          [4, 0.0, 0.49, 1436], # Donchenko
+          [5, 1.0, 0.49, 2236], # Emdin
+          [6, 0.0, 0.64, 1436], # Lushnikov
+          [7, 0.0, 0.66, 1436], # Pulpan
+          [8, 1.0, 0.58, 2236], # Toma
+        ].each do |item|
+          num, score, expected_score, performance = item
+          p = @t.player(num)
+          p.score.should == score
+          p.expected_score.should be_close(expected_score, 0.01)
+          p.performance.should be_close(performance, 0.5)
+          if num == 1
+            p.new_rating.should be_close(1836, 0.5)
+            p.bonus.should == 71
+          else
+            p.new_rating.should == p.rating
+          end
+        end
+      end
+    end
+
+    context "#rate - a tournament with a one provisional and one player who got a bonus" do
+      # 1   Blake, Austin           3403    3.5    6:D   2:D   3:W   4:W   5:D
+      # 2   Fitzpatrick, Kevin      6968    4      5:W   1:D   6:D   3:W   4:W
+      # 3   George Rajesh, Nikhil   10411   1      4:W   5:L   1:L   2:L   6:L
+      # 4   Mullooly, Sean          6721    0      3:L   6:L   5:L   1:L   2:L
+      # 5   Mullooly, Michael       6623    3.5    2:L   3:W   4:W   6:W   1:D
+      # 6   O'Dwyer, Eoin           5931    3      1:D   4:W   2:D   5:L   3:W
+      before(:all) do
+        @t = ICU::RatedTournament.new(:desc => "Drogheda Congress Sec 5 2007")
+        @t.add_player(1, :desc => 'Austin Blake (3403)',          :rating => 1081, :kfactor => 24)
+        @t.add_player(2, :desc => 'Kevin Fitzpatrick (6968)',     :rating => 1026, :kfactor => 32)
+        @t.add_player(3, :desc => 'Nikhil George Rajesh (10411)', :rating =>  603, :games   =>  5)
+        @t.add_player(4, :desc => 'Sean Mullooly (6721)',         :rating =>  568, :kfactor => 40)
+        @t.add_player(5, :desc => 'Michael Mullooly (6623)',      :rating =>  719, :kfactor => 40)
+        @t.add_player(6, :desc => "Eoin O'Dwyer (5931)",          :rating => 1032, :kfactor => 40)
+
+        @t.add_result(1, 1, 6, 'D')
+        @t.add_result(1, 2, 5, 'W')
+        @t.add_result(1, 3, 4, 'W')
+        @t.add_result(2, 6, 4, 'W')
+        @t.add_result(2, 5, 3, 'W')
+        @t.add_result(2, 1, 2, 'D')
+        @t.add_result(3, 6, 2, 'D')
+        @t.add_result(3, 3, 1, 'L')
+        @t.add_result(3, 4, 5, 'L')
+        @t.add_result(4, 5, 6, 'W')
+        @t.add_result(4, 1, 4, 'W')
+        @t.add_result(4, 2, 3, 'W')
+        @t.add_result(5, 3, 6, 'L')
+        @t.add_result(5, 4, 2, 'L')
+        @t.add_result(5, 5, 1, 'D')
+
+        @t.rate!
+      end
+
+      it "should agree with ICU rating database" do
+        [
+          [1, 3.5, 3.84,  977, 1073,  0], # Austin
+          [2, 4.0, 3.51, 1068, 1042,  0], # Kevin
+          [3, 1.0, 1.05,  636,  636,  0], # Nikhil
+          [4, 0.0, 0.78,  520,  537,  0], # Sean
+          [5, 3.5, 1.74, 1026,  835, 45], # Michael
+          [6, 3.0, 3.54,  907, 1010,  0], # Eoin
+        ].each do |item|
+          num, score, expected_score, performance, new_rating, bonus = item
+          p = @t.player(num)
+          p.score.should == score
+          p.bonus.should == bonus
+          p.performance.should be_close(performance, 0.5)
+          p.expected_score.should be_close(expected_score, 0.01)
+          p.new_rating.should be_close(new_rating, 0.5)
+        end
+      end
+    end
+
+    context "#rate - a tournament with a mixture of player types that included 2 players who received bonuses" do
+      # 1   Fanjimni, Kayode Daniel 12221   4      2:L   3:W   4:-   5:W   6:W   7:W
+      # 2   Guinan, Cian            12160   3.5    1:W   3:D   4:W   5:-   6:L   7:W
+      # 3   Duffy, Sinead           12185   3.5    1:L   2:D   4:-   5:W   6:W   7:W
+      # 4   Cooke, Peter            12169   1      1:-   2:L   3:-   5:L   6:W   7:-
+      # 5   Callaghan, Tony         10728   1      1:L   2:-   3:L   4:W   6:-   7:-
+      # 6   Montenegro, May Yol     10901   1      1:L   2:W   3:L   4:L   5:-   7:-
+      # 7   Lowry-O'Reilly, Johanna 5535    0      1:L   2:L   3:L   4:-   5:-   6:-
+      before(:all) do
+        @t = ICU::RatedTournament.new(:desc => "Drogheda Club Championship, 2009, Section H")
+        @t.add_player(1, :desc => 'Fanjimni, Kayode Daniel', :rating => 1079, :games => 17)
+        @t.add_player(2, :desc => 'Guinan, Cian',            :rating =>  659, :kfactor => 40)
+        @t.add_player(3, :desc => 'Duffy, Sinead',           :rating =>  731, :kfactor => 40)
+        @t.add_player(4, :desc => 'Cooke, Peter',            :rating =>  728, :kfactor => 40)
+        @t.add_player(5, :desc => 'Callaghan, Tony',         :rating =>  894, :games => 5)
+        @t.add_player(6, :desc => 'Montenegro, May Yol')
+        @t.add_player(7, :desc => "Lowry-O'Reilly, Johanna", :rating =>  654, :kfactor => 24)
+
+        @t.add_result(1, 2, 7, 'W')
+        @t.add_result(1, 3, 6, 'W')
+        @t.add_result(1, 4, 5, 'L')
+        @t.add_result(2, 6, 4, 'L')
+        @t.add_result(2, 7, 3, 'L')
+        @t.add_result(2, 1, 2, 'L')
+        @t.add_result(3, 3, 1, 'L')
+        @t.add_result(4, 2, 3, 'D')
+        @t.add_result(5, 4, 2, 'L')
+        @t.add_result(5, 5, 1, 'L')
+        @t.add_result(6, 1, 6, 'W')
+        @t.add_result(7, 5, 3, 'L')
+        @t.add_result(7, 6, 2, 'W')
+        @t.add_result(7, 7, 1, 'L')
+
+        @t.rate!
+
+        @m = [
+          # MSAccess results taken from rerun of original which is different (reason unknown).
+          [1, 4.0, 4.28, 1052, 1052,  0], # Fanjini
+          [2, 3.5, 1.93,  920,  757, 35], # Guinan
+          [3, 3.5, 2.29,  932,  798, 18], # Duffy
+          [4, 1.0, 1.52,  588,  707,  0], # Cooke
+          [5, 1.0, 1.40,  828,  828,  0], # Callaghan
+          [6, 1.0, 0.91,  627,  627,  0], # Montenegro
+          [7, 0.0, 0.78,  460,  635,  0], # Lowry-O'Reilly
+        ]
+      end
+
+      it "should agree with ICU rating database" do
+        @m.each do |item|
+          num, score, expected_score, performance, new_rating, bonus = item
+          p = @t.player(num)
+          p.score.should == score
+          p.bonus.should == bonus
+          p.performance.should be_close(performance, num == 2 ? 0.6 : 0.5)
+          p.expected_score.should be_close(expected_score, 0.01)
+          p.new_rating.should be_close(new_rating, 0.5)
+        end
+      end
+
+      it "should give the same results if rated twice" do
+        @t.rate!
+        @m.each do |item|
+          num, score, expected_score, performance, new_rating, bonus = item
+          p = @t.player(num)
+          p.score.should == score
+          p.bonus.should == bonus
+          p.performance.should be_close(performance, num == 2 ? 0.6 : 0.5)
+          p.expected_score.should be_close(expected_score, 0.01)
+          p.new_rating.should be_close(new_rating, 0.5)
+        end
+      end
+
+      it "should be completely different if bonuses are turned off" do
+        @t.no_bonuses = true
+        @t.rate!
+        @m.each do |item|
+          num, score, expected_score, performance, new_rating, bonus = item
+          p = @t.player(num)
+          p.score.should == score
+          p.bonus.should == 0
+          p.performance.should_not be_close(performance, 1.0)
+          p.expected_score.should_not be_close(expected_score, 0.01)
+          p.new_rating.should_not be_close(new_rating, 1.0)
+        end
+      end
+    end
+
     context "#rate - a made-up tournament that includes a group of unrateable players" do
       #   1   Orr, Mark               1350    2      2:W   3:W   0:-
       #   2   Coughlan, Anne          251     1      1:L   0:-   3:W
@@ -646,7 +899,7 @@ module ICU
           [2,  0.91, 1184],
           [3,  0.10,  792],
         ].each do |item|
-          num, expected_score, new_rating, performance = item
+          num, expected_score, new_rating = item
           p = @t.player(num)
           p.expected_score.should be_close(expected_score, 0.01)
           p.new_rating.should be_close(new_rating, 0.5)

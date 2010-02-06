@@ -129,7 +129,24 @@ if it's used at all, is expected to be for player names in the form of String va
 
 After the <em>rate!</em> method has been called on the ICU::RatedTournament object, the results
 of the rating calculations are available via various methods of the player objects:
-_new_rating_, _rating_change_, _performance_, _expected_score_.
+
+_new_rating_::     This is the player's new rating. For rated players it is their old rating
+                   plus their _rating_change_. For provisional players it is their performance
+                   rating including their previous games. For unrated players it is their
+                   tournament performance rating. New rarings are not calculated for foreign
+                   players so this method just returned their start _rating_.
+_rating_change_::  This is the difference between the old and new ratings for rated players,
+                   based on sum of expected scores in each games and the player's K-factor.
+                   Zero for all other types of players.
+_performance_::    This returns the tournament rating performance for rated, unrated and
+                   foreign players. For provisional players it returns a weighted average
+                   of the player's tournament performance and their previous games. For
+                   provisional and unrated players it is the same as _new_rating_.
+_expected_score_:: This returns the sum of expected scores over all results for all player types.
+                   For rated players, this number times the K-factor gives their rating change.
+                   It is calculated for provisional, unrated and foreign players but not actually
+                   used to estimate new ratings (for provisional and unrated players performance
+                   estimates are used instead).
 
 == Unrateable Players
 
@@ -142,14 +159,11 @@ method.
 
   class RatedPlayer
     attr_reader :num, :rating, :kfactor, :games
-    attr_accessor :desc
+    attr_accessor :desc, :bonus
 
-    # After the tournament has been rated, this is the player's new rating. For rated players this is the old rating
-    # plus the _rating_change_. For provisional players it is their performance rating, including their previous
-    # games. For unrated players it is their tournament performance rating. For foreign players it is the same
-    # as their start _rating_.
+    # After the tournament has been rated, this is the player's new rating.
     def new_rating
-      full_rating? ? rating + rating_change : performance
+      full_rating? ? @rating + rating_change + @bonus : performance
     end
 
     # After the tournament has been rated, this is the difference between the old and new ratings for
@@ -160,16 +174,12 @@ method.
     end
 
     # After the tournament has been rated, this returns the sum of expected scores over all results.
-    # Although this is calculated for provisional and unrated players it is not used to estimate their
-    # new ratings. For rated players, this number times the K-factor gives the change in rating.
     def expected_score
       @results.inject(0.0) { |e, r| e + (r.expected_score || 0.0) }
     end
 
     # After the tournament has been rated, this returns the tournament rating performance for
-    # rated, unrated and foreign players. For provisional players it returns a weighted average
-    # of the player's tournament performance and their previous games. For provisional and
-    # unrated players it is the same as _new_rating_.
+    # rated, unrated and foreign players. Returns zero for rated players.
     def performance
       @performance
     end
@@ -187,6 +197,14 @@ method.
     # Returns the type of player as a symbol: one of _rated_, _provisional_, _unrated_ or _foreign_.
     def type
       @type
+    end
+
+    def full_rating? # :nodoc:
+      @type == :rated || @type == :foreign
+    end
+
+    def bonus_rating # :nodoc:
+      @bonus_rating || @rating
     end
 
     # Calculate a K-factor according to ICU rules.
@@ -219,17 +237,15 @@ method.
       @results.sort!{ |a,b| a.round <=> b.round }
     end
 
-    def rate! # :nodoc:
-      @results.each { |r| r.rate!(self) }
-    end
-
-    def full_rating? # :nodoc:
-      @type == :rated || @type == :foreign
-    end
-
-    def init_performance # :nodoc:
+    def init # :nodoc:
       @performance = nil
       @estimated_performance = nil
+      @bonus_rating = nil
+      @bonus = 0
+    end
+
+    def rate! # :nodoc:
+      @results.each { |r| r.rate!(self) }
     end
 
     def estimate_performance # :nodoc:
@@ -237,7 +253,7 @@ method.
         opponent = result.opponent
         if opponent.full_rating? || opponent.performance
           sum[0]+= 1
-          sum[1]+= (opponent.full_rating? ? opponent.rating : opponent.performance) + (2 * result.score - 1) * 400.0
+          sum[1]+= (opponent.full_rating? ? opponent.bonus_rating : opponent.performance) + (2 * result.score - 1) * 400.0
         end
         sum
       end
@@ -249,12 +265,31 @@ method.
 
     def update_performance # :nodoc:
       stable = case
-      when  @performance &&  @estimated_performance then (@performance - @estimated_performance).abs < 0.5
-      when !@performance && !@estimated_performance then true
-      else false
+      when  @performance &&  @estimated_performance then
+        (@performance - @estimated_performance).abs < 0.5
+      when !@performance && !@estimated_performance then
+        true
+      else
+        false
       end
       @performance = @estimated_performance if @estimated_performance
       stable
+    end
+
+    def calculate_bonus # :nodoc:
+      # Rounding is performed in places to emulate the older MSAccess implementation.
+      return if @type != :rated || @kfactor <= 24 || @results.size <= 4 || @rating >= 2100
+      change = rating_change
+      return if change <= 35 || @rating + change >= 2100
+      threshold = 32 + 3 * (@results.size - 4)
+      bonus = (change - threshold).round
+      return if bonus <= 0
+      bonus = (1.25 * bonus).round if kfactor >= 40
+      [2100, @performance].each { |max| bonus = max - @rating if bonus + @rating > max }
+      return if bonus <= 0
+      bonus = bonus.round
+      @bonus_rating = @rating + change + bonus
+      @bonus = bonus
     end
 
     def ==(other) # :nodoc:
@@ -269,6 +304,7 @@ method.
       [:rating, :kfactor, :games, :desc].each { |atr| self.send("#{atr}=", opt[atr]) unless opt[atr].nil? }
       @results = []
       @type = deduce_type
+      @bonus = 0
     end
 
     def num=(num)
