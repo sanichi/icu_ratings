@@ -1,3 +1,4 @@
 # :enddoc:
 dir = File.dirname(__FILE__)
-%w{tournament player result util}.each { |f| require "#{dir}/icu_ratings/#{f}" }
+$:.unshift(dir) unless $:.include?(dir) || $:.include?(File.expand_path(dir))
+%w{tournament player result util}.each { |f| require "icu_ratings/#{f}" }
