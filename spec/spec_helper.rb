@@ -1,3 +1,3 @@
 require 'rubygems'
 require 'spec'
-require File.dirname(__FILE__) + '/../lib/icu_ratings'
+require File.expand_path(File.dirname(__FILE__) + '/../lib/icu_ratings')
