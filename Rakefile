@@ -2,27 +2,32 @@ require 'rubygems'
 require 'rake'
 require 'rake/rdoctask'
 require 'spec/rake/spectask'
+require File.expand_path(File.dirname(__FILE__) + '/lib/icu_ratings/version')
 
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name             = "icu_ratings"
-    gem.summary          = "For rating chess tournaments."
-    gem.description      = "Build an object that represents a chess tournament then get it to calculate ratings of all the players."
-    gem.homepage         = "http://github.com/sanichi/icu_ratings"
-    gem.authors          = ["Mark Orr"]
-    gem.email            = "mark.j.l.orr@googlemail.com"
-    gem.files            = FileList['{lib,spec}/**/*', 'README.rdoc', 'LICENCE', 'VERSION.yml']
-    gem.has_rdoc         = true
-    gem.extra_rdoc_files = ['README.rdoc', 'LICENCE'],
-    gem.rdoc_options     = ["--charset=utf-8"]
-  end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler not available. Install it with: sudo gem install jeweler."
-end
+version = ICU::Ratings::VERSION
 
 task :default => :spec
+
+desc "Build a new gem for version #{version}"
+task :build do
+  system "gem build icu_ratings.gemspec"
+  system "mv {,pkg/}icu_ratings-#{version}.gem"
+end
+
+desc "Release version #{version} of the gem to rubygems.org"
+task :release => :build do
+  system "gem push pkg/icu_ratings-#{version}.gem"
+end
+
+desc "Create a tag for version #{version}"
+task :tag do
+  system "git tag v#{version} -m 'Tagging version #{version}'"
+end
+
+desc "Push the master branch to github"
+task :push do
+  system "git push origin master"
+end
 
 Spec::Rake::SpecTask.new(:spec) do |spec|
   spec.libs << 'lib' << 'spec'
@@ -31,13 +36,6 @@ Spec::Rake::SpecTask.new(:spec) do |spec|
 end
 
 Rake::RDocTask.new(:rdoc) do |rdoc|
-  if File.exist?('VERSION.yml')
-    config  = YAML.load(File.read('VERSION.yml'))
-    version = "#{config[:major]}.#{config[:minor]}.#{config[:patch]}"
-  else
-    version = ""
-  end
-
   rdoc.title    = "ICU Ratings #{version}"
   rdoc.rdoc_dir = 'rdoc'
   rdoc.options  = ["--charset=utf-8"]
