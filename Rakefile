@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'rake'
 require 'rake/rdoctask'
-require 'spec/rake/spectask'
+require 'rspec/core/rake_task'
 require File.expand_path(File.dirname(__FILE__) + '/lib/icu_ratings/version')
 
 version = ICU::Ratings::VERSION
@@ -29,15 +29,13 @@ task :push do
   system "git push origin master"
 end
 
-Spec::Rake::SpecTask.new(:spec) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.spec_files = FileList['spec/**/*_spec.rb']
-  spec.spec_opts  = ['--colour --format nested']
+RSpec::Core::RakeTask.new do |t|
+  t.rspec_opts  = ['--colour --format nested']
 end
 
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.title    = "ICU Ratings #{version}"
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.options  = ["--charset=utf-8"]
-  rdoc.rdoc_files.include('lib/**/*.rb', 'README.rdoc', 'LICENCE')
+Rake::RDocTask.new(:rdoc) do |t|
+  t.title    = "ICU Ratings #{version}"
+  t.rdoc_dir = 'rdoc'
+  t.options  = ["--charset=utf-8"]
+  t.rdoc_files.include('lib/**/*.rb', 'README.rdoc', 'LICENCE')
 end
