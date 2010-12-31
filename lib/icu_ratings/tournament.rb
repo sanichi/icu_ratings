@@ -1,78 +1,74 @@
 # encoding: utf-8
 
 module ICU
-
-=begin rdoc
-
-== Creating Tournaments
-
-ICU::RatedTournament objects are created directly.
-
-  t = ICU::RatedTournament.new
-
-They have some optional parameters which can be set via the constructor or by calling
-the same-named setter methods. One is called _desc_ (short for description) the value
-of which can be any object but will, if utilized, typically be the name of the
-tournament as a string.
-
-  t = ICU::RatedTournament.new(:desc => "Irish Championships 2010")
-  puts t.desc                         # "Irish Championships 2010"
-
-Another optional parameter is _start_ for the start date. A Date object or a string that can be
-parsed as a string can be used to set it. The European convention is preferred for dates like
-"03/06/2013" (3rd of June, not 6th of March). Attempting to set an invalid date will raise an
-exception.
-
-  t = ICU::RatedTournament.new(:start => "01/07/2010")
-  puts t.start.class                  # Date
-  puts t.start.to_s                   # "2010-07-01"
-
-Also, there is the option _no_bonuses_. Bonuses are a feature of the ICU rating system. If you are
-rating a non-ICU tournament (such as a FIDE tournament) where bonues are not awarded use this option.
-
-  t = ICU::RatedTournament.new(:desc => 'Linares', :start => "07/02/2009", :no_bonuses => true)
-
-Note, however, that the ICU system also has its own unique way of treating provisional, unrated and
-foreign players, so the only FIDE tournaments that can be rated using this software are those that
-consist solely of rated players.
-
-== Rating Tournaments
-
-To rate a tournament, first add the players (see ICU::RatedPlayer for details):
-
-  t.add_player(1, :rating => 2534, :kfactor => 16)
-  # ...
-
-Then add the results (see ICU::RatedResult for details):
-
-  t.add_result(1, 1, 2, 'W')
-  # ...
-
-Then rate the tournament by calling the <em>rate!</em> method:
-
-  t.rate!
-
-Now the results of the rating calculations can be retrieved from the players in the tournement
-or their results. For example, player 1's new rating would be:
-
-  t.player(1).new_rating
-
-See ICU::RatedPlayer and ICU::RatedResult for more details.
-
-== Error Handling
-
-Some of the above methods have the potential to raise RuntimeError exceptions.
-In the case of _add_player_ and _add_result_, the use of invalid arguments
-would cause such an error. Theoretically, the <em>rate!</em> method could also throw an
-exception if the iterative algorithm it uses to estimate performance ratings
-of unrated players failed to converge. However an instance of non-convergence
-has yet to be observed in practice.
-
-Since exception throwing is how errors are signalled, you should arrange for them
-to be caught and handled in some suitable place in your code.
-
-=end
-
+  #
+  # == Creating Tournaments
+  #
+  # ICU::RatedTournament objects are created directly.
+  #
+  #   t = ICU::RatedTournament.new
+  #
+  # They have some optional parameters which can be set via the constructor or by calling
+  # the same-named setter methods. One is called _desc_ (short for description) the value
+  # of which can be any object but will, if utilized, typically be the name of the
+  # tournament as a string.
+  #
+  #   t = ICU::RatedTournament.new(:desc => "Irish Championships 2010")
+  #   puts t.desc                         # "Irish Championships 2010"
+  #
+  # Another optional parameter is _start_ for the start date. A Date object or a string that can be
+  # parsed as a string can be used to set it. The European convention is preferred for dates like
+  # "03/06/2013" (3rd of June, not 6th of March). Attempting to set an invalid date will raise an
+  # exception.
+  #
+  #   t = ICU::RatedTournament.new(:start => "01/07/2010")
+  #   puts t.start.class                  # Date
+  #   puts t.start.to_s                   # "2010-07-01"
+  #
+  # Also, there is the option _no_bonuses_. Bonuses are a feature of the ICU rating system. If you are
+  # rating a non-ICU tournament (such as a FIDE tournament) where bonues are not awarded use this option.
+  #
+  #   t = ICU::RatedTournament.new(:desc => 'Linares', :start => "07/02/2009", :no_bonuses => true)
+  #
+  # Note, however, that the ICU system also has its own unique way of treating provisional, unrated and
+  # foreign players, so the only FIDE tournaments that can be rated using this software are those that
+  # consist solely of rated players.
+  #
+  # == Rating Tournaments
+  #
+  # To rate a tournament, first add the players (see ICU::RatedPlayer for details):
+  #
+  #   t.add_player(1, :rating => 2534, :kfactor => 16)
+  #   # ...
+  #
+  # Then add the results (see ICU::RatedResult for details):
+  #
+  #   t.add_result(1, 1, 2, 'W')
+  #   # ...
+  #
+  # Then rate the tournament by calling the <em>rate!</em> method:
+  #
+  #   t.rate!
+  #
+  # Now the results of the rating calculations can be retrieved from the players in the tournement
+  # or their results. For example, player 1's new rating would be:
+  #
+  #   t.player(1).new_rating
+  #
+  # See ICU::RatedPlayer and ICU::RatedResult for more details.
+  #
+  # == Error Handling
+  #
+  # Some of the above methods have the potential to raise RuntimeError exceptions.
+  # In the case of _add_player_ and _add_result_, the use of invalid arguments
+  # would cause such an error. Theoretically, the <em>rate!</em> method could also throw an
+  # exception if the iterative algorithm it uses to estimate performance ratings
+  # of unrated players failed to converge. However an instance of non-convergence
+  # has yet to be observed in practice.
+  #
+  # Since exception throwing is how errors are signalled, you should arrange for them
+  # to be caught and handled in some suitable place in your code.
+  #
   class RatedTournament
     attr_accessor :desc
     attr_reader :start, :no_bonuses

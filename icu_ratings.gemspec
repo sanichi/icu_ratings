@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/sanichi/icu_ratings}
   s.summary = %q{For rating chess tournaments.}
   s.version = ICU::Ratings::VERSION
+  s.rubyforge_project = "icu_ratings"
 
   s.extra_rdoc_files = %w(LICENCE README.rdoc)
   s.files = Dir.glob("lib/**/*.rb") + Dir.glob("spec/*.rb") + %w(LICENCE README.rdoc)
@@ -19,6 +20,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.test_files = Dir.glob("spec/*.rb")
   
-  s.add_development_dependency("rspec", ">= 2.0.0")
+  s.add_development_dependency("rspec", ">= 2.3.0")
 end
 

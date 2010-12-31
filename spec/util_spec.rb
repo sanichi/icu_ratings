@@ -50,9 +50,9 @@ module ICU
       it "should return age in years" do
         Util.age('2001-01-01', '2001-01-01').should == 0.0
         Util.age('2001-01-01', '2002-01-01').should == 1.0
-        Util.age('2001-01-01', '2001-01-02').should be_close(1/365.0, 0.01)
-        Util.age('2001-01-01', '2001-02-01').should be_close(1/12.0, 0.01)
-        Util.age('1955-11-09', '2010-01-17').should be_close(54.2, 0.01)
+        Util.age('2001-01-01', '2001-01-02').should be_within(0.01).of(1/365)
+        Util.age('2001-01-01', '2001-02-01').should be_within(0.01).of(1/12.0)
+        Util.age('1955-11-09', '2010-01-17').should be_within(0.01).of(54.2)
         Util.age('2001-01-01', '2000-01-01').should == -1.0
       end
 

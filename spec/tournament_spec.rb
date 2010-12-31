@@ -160,20 +160,20 @@ module ICU
       it "after the tournament is rated" do
         @t.rate!
 
-        @t.player(1).expected_score.should be_close(2.249, 0.001)
-        @t.player(2).expected_score.should be_close(1.760, 0.001)
-        @t.player(3).expected_score.should be_close(1.240, 0.001)
-        @t.player(4).expected_score.should be_close(0.751, 0.001)
+        @t.player(1).expected_score.should be_within(0.001).of(2.249)
+        @t.player(2).expected_score.should be_within(0.001).of(1.760)
+        @t.player(3).expected_score.should be_within(0.001).of(1.240)
+        @t.player(4).expected_score.should be_within(0.001).of(0.751)
 
-        @t.player(1).rating_change.should be_close(7.51,   0.01)
-        @t.player(2).rating_change.should be_close(4.81,   0.01)
-        @t.player(3).rating_change.should be_close(-7.21,  0.01)
-        @t.player(4).rating_change.should be_close(-30.05, 0.01)
+        @t.player(1).rating_change.should be_within(0.01).of(7.51)
+        @t.player(2).rating_change.should be_within(0.01).of(4.81)
+        @t.player(3).rating_change.should be_within(0.01).of(-7.21)
+        @t.player(4).rating_change.should be_within(0.01).of(-30.05)
 
-        @t.player(1).new_rating.should be_close(2207.5, 0.1)
-        @t.player(2).new_rating.should be_close(2104.8, 0.1)
-        @t.player(3).new_rating.should be_close(1992.8, 0.1)
-        @t.player(4).new_rating.should be_close(1870.0, 0.1)
+        @t.player(1).new_rating.should be_within(0.1).of(2207.5)
+        @t.player(2).new_rating.should be_within(0.1).of(2104.8)
+        @t.player(3).new_rating.should be_within(0.1).of(1992.8)
+        @t.player(4).new_rating.should be_within(0.1).of(1870.0)
       end
     end
 
@@ -229,8 +229,8 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_close(expected_score, 0.001)
-          p.new_rating.should be_close(new_rating, 0.5)
+          p.expected_score.should be_within(0.001).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
         end
       end
 
@@ -245,8 +245,8 @@ module ICU
         ].each do |item|
           num, ytd_performance, tournament_performance = item
           p = @t.player(num)
-          p.performance.should_not be_close(ytd_performance, 0.5)
-          p.performance.should be_close(tournament_performance, 0.5)
+          p.performance.should_not be_within(0.5).of(ytd_performance)
+          p.performance.should be_within(0.5).of(tournament_performance)
         end
       end
     end
@@ -263,10 +263,10 @@ module ICU
       end
 
       it "should get same results as ICU rating database" do
-        @t.player(1).expected_score.should be_close(1.689, 0.001)
-        @t.player(2).expected_score.should be_close(1.311, 0.001)
-        @t.player(1).new_rating.should be_close(1378, 0.5)
-        @t.player(2).new_rating.should be_close(1261, 0.5)
+        @t.player(1).expected_score.should be_within(0.001).of(1.689)
+        @t.player(2).expected_score.should be_within(0.001).of(1.311)
+        @t.player(1).new_rating.should be_within(0.5).of(1378)
+        @t.player(2).new_rating.should be_within(0.5).of(1261)
       end
     end
 
@@ -380,12 +380,12 @@ module ICU
         pc = @t.player(2)
 
         af.score.should == 4.5
-        af.expected_score.should be_close(6.054, 0.001)
-        af.new_rating.should be_close(2080, 0.5)
+        af.expected_score.should be_within(0.001).of(6.054)
+        af.new_rating.should be_within(0.5).of(2080)
 
         pc.score.should == 4.0
-        pc.expected_score.should be_close(3.685, 0.001)
-        pc.new_rating.should be_close(1984, 0.5)
+        pc.expected_score.should be_within(0.001).of(3.685)
+        pc.new_rating.should be_within(0.5).of(1984)
       end
     end
 
@@ -534,9 +534,9 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.new_rating.should be_close(new_rating, 0.5)
-          p.results.inject(p.rating){ |t,r| t + r.rating_change }.should be_close(new_rating, 0.5)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
+          p.results.inject(p.rating){ |t,r| t + r.rating_change }.should be_within(0.5).of(new_rating)
         end
       end
 
@@ -547,8 +547,8 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.new_rating.should be_close(new_rating, 0.5)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
         end
       end
 
@@ -608,8 +608,8 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.new_rating.should be_close(new_rating, 0.5)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
         end
       end
     end
@@ -661,8 +661,8 @@ module ICU
           num, score, expected_score, new_rating, bonus = item
           p = @t.player(num)
           p.score.should == score
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.new_rating.should be_close(new_rating, 0.5)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
           p.bonus.should == bonus
         end
       end
@@ -713,10 +713,10 @@ module ICU
           num, score, expected_score, performance = item
           p = @t.player(num)
           p.score.should == score
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.performance.should be_close(performance, 0.5)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.performance.should be_within(0.5).of(performance)
           if num == 1
-            p.new_rating.should be_close(1836, 0.5)
+            p.new_rating.should be_within(0.5).of(1836)
             p.bonus.should == 71
           else
             p.new_rating.should == p.rating
@@ -773,9 +773,9 @@ module ICU
           p = @t.player(num)
           p.score.should == score
           p.bonus.should == bonus
-          p.performance.should be_close(performance, 0.5)
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.new_rating.should be_close(new_rating, 0.5)
+          p.performance.should be_within(0.5).of(performance)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
         end
       end
     end
@@ -833,9 +833,9 @@ module ICU
           p = @t.player(num)
           p.score.should == score
           p.bonus.should == bonus
-          p.performance.should be_close(performance, num == 2 ? 0.6 : 0.5)
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.new_rating.should be_close(new_rating, 0.5)
+          p.performance.should be_within(num == 2 ? 0.6 : 0.5).of(performance)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
         end
       end
 
@@ -846,9 +846,9 @@ module ICU
           p = @t.player(num)
           p.score.should == score
           p.bonus.should == bonus
-          p.performance.should be_close(performance, num == 2 ? 0.6 : 0.5)
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.new_rating.should be_close(new_rating, 0.5)
+          p.performance.should be_within(num == 2 ? 0.6 : 0.5).of(performance)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
         end
       end
 
@@ -860,9 +860,9 @@ module ICU
           p = @t.player(num)
           p.score.should == score
           p.bonus.should == 0
-          p.performance.should_not be_close(performance, 1.0)
-          p.expected_score.should_not be_close(expected_score, 0.01)
-          p.new_rating.should_not be_close(new_rating, 1.0)
+          p.performance.should_not be_within(1.0).of(performance)
+          p.expected_score.should_not be_within(0.01).of(expected_score)
+          p.new_rating.should_not be_within(1.0).of(new_rating)
         end
       end
     end
@@ -901,8 +901,8 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_close(expected_score, 0.01)
-          p.new_rating.should be_close(new_rating, 0.5)
+          p.expected_score.should be_within(0.01).of(expected_score)
+          p.new_rating.should be_within(0.5).of(new_rating)
         end
       end
 
