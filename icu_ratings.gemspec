@@ -20,6 +20,9 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.test_files = Dir.glob("spec/*.rb")
   
-  s.add_development_dependency("rspec", ">= 2.3.0")
+  s.add_development_dependency("rspec", "~> 2.5")
+  s.add_development_dependency("ZenTest", "~> 4.4.2")
+  s.add_development_dependency("autotest-growl", "~> 0.2.9")
+  s.add_development_dependency("autotest-fsevent", "~> 0.2.4")
 end
 
