@@ -5,6 +5,7 @@ require "autotest/bundler"
 # assume lib/ and spec/ are structured in the same way, we have to replace them.
 #
 Autotest.add_hook :initialize do |at|
+  at.add_exception('version.rb')
   at.remove_mapping %r%^lib/(.*)\.rb$%
   at.add_mapping(%r%^lib/icu_ratings/(.*)\.rb$%) { |_, m| "spec/#{m[1]}_spec.rb" }
 end
