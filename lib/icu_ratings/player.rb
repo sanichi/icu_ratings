@@ -64,7 +64,7 @@ module ICU
   #
   # == No Rating
   #
-  # Unrated players who do not have any rated games at all are indicated by leaving out any values for
+  # Unrated players who do not have any previous rated games at all are indicated by leaving out any values for
   # _rating_, _kfactor_ or _games_.
   #
   #   p = t.add_player(5)
@@ -131,10 +131,10 @@ module ICU
   # _new_rating_::     This is the player's new rating. For rated players it is their old rating
   #                    plus their _rating_change_. For provisional players it is their performance
   #                    rating including their previous games. For unrated players it is their
-  #                    tournament performance rating. New rarings are not calculated for foreign
-  #                    players so this method just returned their start _rating_.
+  #                    tournament performance rating. New ratings are not calculated for foreign
+  #                    players so this method just returns their start _rating_.
   # _rating_change_::  This is the difference between the old and new ratings for rated players,
-  #                    based on sum of expected scores in each games and the player's K-factor.
+  #                    based on sum of expected scores in each game and the player's K-factor.
   #                    Zero for all other types of players.
   # _performance_::    This returns the tournament rating performance for rated, unrated and
   #                    foreign players. For provisional players it returns a weighted average
@@ -145,6 +145,7 @@ module ICU
   #                    It is calculated for provisional, unrated and foreign players but not actually
   #                    used to estimate new ratings (for provisional and unrated players performance
   #                    estimates are used instead).
+  # _bonus_::          The bonus received by a rated player (usually zero). Nil for other player types.
   #
   # == Unrateable Players
   #
@@ -154,8 +155,8 @@ module ICU
   # method.
   #
   class RatedPlayer
-    attr_reader :num, :rating, :kfactor, :games
-    attr_accessor :desc, :bonus
+    attr_reader :num, :rating, :kfactor, :games, :bonus
+    attr_accessor :desc
 
     # After the tournament has been rated, this is the player's new rating.
     def new_rating
