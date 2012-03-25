@@ -1,7 +1,7 @@
 require 'date' # needed for 1.9.1
 
 module ICU
-  class Util
+  module Util
 
     # Parses strings into date objects, interpreting nn/nn/nnnn as dd/mm/yyyy. It raises an exception on error.
     #

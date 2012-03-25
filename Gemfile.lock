@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    icu_ratings (1.1.6)
+    icu_ratings (1.1.7)
 
 GEM
   remote: http://rubygems.org/
