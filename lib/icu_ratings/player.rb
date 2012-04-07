@@ -129,13 +129,13 @@ module ICU
   # of the rating calculations are available via various methods of the player objects:
   #
   # _new_rating_::     This is the player's new rating. For rated players it is their old rating
-  #                    plus their _rating_change_. For provisional players it is their performance
-  #                    rating including their previous games. For unrated players it is their
-  #                    tournament performance rating. New ratings are not calculated for foreign
-  #                    players so this method just returns their start _rating_.
-  # _rating_change_::  This is the difference between the old and new ratings for rated players,
-  #                    based on sum of expected scores in each game and the player's K-factor.
-  #                    Zero for all other types of players.
+  #                    plus their _rating_change_ plus their _bonus_ (if any). For provisional players
+  #                    it is their performance rating including their previous games. For unrated
+  #                    players it is their tournament performance rating. New ratings are not
+  #                    calculated for foreign players so this method just returns their start _rating_.
+  # _rating_change_::  This is calculated from a rated player's old rating, their K-factor and the sum
+  #                    of expected scores in each game. The same as the difference between the old and
+  #                    new ratings (unless there is a bonus). Zero for all other types of players.
   # _performance_::    This returns the tournament rating performance for rated, unrated and
   #                    foreign players. For provisional players it returns a weighted average
   #                    of the player's tournament performance and their previous games. For
