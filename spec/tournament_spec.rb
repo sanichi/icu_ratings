@@ -914,5 +914,85 @@ module ICU
         end
       end
     end
+
+    context "#rate - Glegowski and Galligan in LCU Div 3 2012" do
+      before(:each) do
+        @t = ICU::RatedTournament.new(desc: 'LCU Div 3 2011-12', no_bonuses: false)
+
+        # The two player's we are most interested in. The problem that led to
+        # this test was later tracked to Glegowski's K-factor (either 24 or 32).
+        @t.add_player(1, kfactor: 24, rating: 1424, desc: 'Cezary Glegolski (10620)')
+        @t.add_player(2,                            desc: 'Sean Galligan (13021)')
+
+        # Cezary Glegolski opponents.
+        @t.add_player(101, kfactor: 24, rating: 1436, desc: 'Michael Dempsey (323)')
+        @t.add_player(102, kfactor: 24, rating: 1590, desc: 'Michael D. Keating (2216)')
+        @t.add_player(103, kfactor: 40, rating: 1648, desc: 'Ben Quigley (5218)')
+        @t.add_player(104, kfactor: 24, rating: 1664, desc: 'Michael Hanley (536)')
+        @t.add_player(105, kfactor: 24, rating: 1492, desc: 'Sean Loftus (788)')
+        @t.add_player(106, kfactor: 24, rating: 1503, desc: 'Garret Curran (1712)')
+        @t.add_player(107, kfactor: 24, rating: 1692, desc: 'Ernie McElroy (1080)')
+        @t.add_player(108, kfactor: 24, rating: 1681, desc: 'Sean Nolan (4572)')
+        @t.add_player(109, kfactor: 24, rating: 1639, desc: 'Paul Taaffe (2217)')
+        @t.add_player(110, kfactor: 24, rating: 1729, desc: 'Kieran Rogers (4028)')
+
+        # Sean Galligan's opponents.
+        # 105
+        # 106
+        # 107
+        @t.add_player(204, kfactor: 24, rating: 1923, desc: 'Brian Gallagher (468)')
+        # 109
+        @t.add_player(206, kfactor: 24, rating: 1764, desc: 'Rick Goetzee (7190)')
+        # 104
+        @t.add_player(208, kfactor: 24, rating: 1692, desc: 'Colm Buckley (117))')
+        # 102
+        @t.add_player(210, kfactor: 24, rating: 1575, desc: 'John Quigley (1393)')
+
+        # Results.
+        @t.add_result(1,  1, 101, "D")
+        @t.add_result(2,  1, 102, "W")
+        @t.add_result(3,  1, 103, "W")
+        @t.add_result(4,  1, 104, "W")
+        @t.add_result(5,  1, 105, "W")
+        @t.add_result(6,  1, 106, "W")
+        @t.add_result(7,  1, 107, "W")
+        @t.add_result(8,  1, 108, "L")
+        @t.add_result(9,  1, 109, "L")
+        @t.add_result(10, 1, 110, "L")
+        @t.add_result(11, 1,   2, "L")
+        @t.add_result(1,  2, 105, "D")
+        @t.add_result(2,  2, 106, "D")
+        @t.add_result(3,  2, 107, "D")
+        @t.add_result(4,  2, 204, "D")
+        @t.add_result(5,  2, 109, "D")
+        @t.add_result(6,  2, 206, "W")
+        @t.add_result(7,  2, 104, "W")
+        @t.add_result(8,  2, 208, "L")
+        @t.add_result(9,  2, 102, "D")
+        @t.add_result(10, 2, 210, "D")
+        @t.add_result(11, 2,   1, "W")
+
+        # Get the two players of interest.
+        @p1 = @t.player(1)
+        @p2 = @t.player(2)
+      end
+
+      it "should behave like the Access system" do
+        @t.rate!
+        @p1.new_rating.should be_within(0.5).of(1511)
+        @p1.expected_score.should be_within(0.001).of(2.868)
+        @p1.bonus.should == 0
+        @p2.new_rating.should be_within(0.5).of(1705)
+      end
+
+      it "should behave like ratings.ciu.ie" do
+        @p1.send("kfactor=", 32)
+        @t.rate!
+        @p1.new_rating.should be_within(0.5).of(1603)
+        @p1.expected_score.should be_within(0.001).of(2.868)
+        @p1.bonus.should be_within(1).of(63)
+        @p2.new_rating.should be_within(0.5).of(1722)
+       end
+     end
   end
 end
