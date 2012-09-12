@@ -992,7 +992,7 @@ module ICU
         @p1.expected_score.should be_within(0.001).of(2.868)
         @p1.bonus.should be_within(1).of(63)
         @p2.new_rating.should be_within(0.5).of(1722)
-       end
-     end
+      end
+    end
   end
 end
