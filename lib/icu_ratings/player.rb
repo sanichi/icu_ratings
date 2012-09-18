@@ -260,10 +260,10 @@ module ICU
       end
     end
 
-    def update_performance # :nodoc:
+    def update_performance(thresh) # :nodoc:
       stable = case
       when  @performance &&  @estimated_performance then
-        (@performance - @estimated_performance).abs < 0.5
+        (@performance - @estimated_performance).abs < thresh
       when !@performance && !@estimated_performance then
         true
       else

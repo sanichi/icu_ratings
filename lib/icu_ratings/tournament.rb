@@ -57,6 +57,16 @@ module ICU
   #
   # See ICU::RatedPlayer and ICU::RatedResult for more details.
   #
+  # The <em>rate!</em> method takes some optional arguments to control the algoritm, for example:
+  #
+  #   t.rate!(max_iterations2: 30)
+  #
+  # The complete set of current options is:
+  #
+  # * <em>max_iterations1</em>: the maximum number of re-estimation iterations before the bonus calculation (default <b>30</b>)
+  # * <em>max_iterations2</em>: the maximum number of re-estimation iterations after the bonus calculation (default <b>1</b>)
+  # * <em>threshold</em>: the maximum difference allowed between re-estimated ratings in a stabe solution (default <b>0.5</b>)
+  #
   # == Error Handling
   #
   # Some of the above methods have the potential to raise RuntimeError exceptions.
@@ -66,12 +76,12 @@ module ICU
   # of unrated players failed to converge. However an instance of non-convergence
   # has yet to be observed in practice.
   #
-  # Since exception throwing is how errors are signalled, you should arrange for them
-  # to be caught and handled in some suitable place in your code.
+  # Since exception throwing is how errors are signalled, you should arrange
+  # for them to be caught and handled in some suitable place in your code.
   #
   class RatedTournament
     attr_accessor :desc
-    attr_reader :start, :no_bonuses
+    attr_reader :start, :no_bonuses, :iterations1, :iterations2
 
     # Add a new player to the tournament. Returns the instance of ICU::RatedPlayer created.
     # See ICU::RatedPlayer for details.
@@ -97,14 +107,19 @@ module ICU
     end
 
     # Rate the tournament. Called after all players and results have been added.
-    def rate!
+    def rate!(opt={})
+      max_iterations1 = opt[:max_iterations1] || 30
+      max_iterations2 = opt[:max_iterations2] || 1
+      threshold = opt[:threshold] || 0.5
       players.each { |p| p.init }
-      performance_ratings(30)
+      @iterations1 = performance_ratings(max_iterations1, threshold)
       players.each { |p| p.rate! }
       if !no_bonuses && calculate_bonuses > 0
         players.each { |p| p.rate! }
-        performance_ratings(1)
+        @iterations2 = performance_ratings(max_iterations2, threshold)
         calculate_bonuses
+      else
+        @iterations2 = 0
       end
     end
 
@@ -123,7 +138,7 @@ module ICU
       @start = ICU::Util.parsedate!(date)
     end
 
-    # Set whether there are no bonuses (false by default)
+    # Set whether there are no bonuses (false by default).
     def no_bonuses=(no_bonuses)
       @no_bonuses = no_bonuses ? true : false
     end
@@ -137,14 +152,15 @@ module ICU
     end
 
     # Calculate performance ratings either iteratively or with just one sweep for bonus calculations.
-    def performance_ratings(max)
+    def performance_ratings(max, thresh)
       stable, count = false, 0
       while !stable && count < max
         @player.values.each { |p| p.estimate_performance }
-        stable = @player.values.inject(true) { |ok, p| p.update_performance && ok }
+        stable = @player.values.inject(true) { |ok, p| p.update_performance(thresh) && ok }
         count+= 1
       end
       raise "performance rating estimation did not converge" if max > 1 && !stable
+      count
     end
 
     # Calculate bonuses for all players and return the number who got one.
