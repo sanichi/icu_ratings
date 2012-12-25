@@ -273,7 +273,9 @@ module ICU
       stable
     end
 
-    def calculate_bonus # :nodoc:
+    def calculate_bonus(allow_new_bonus) # :nodoc:
+      # New in December 2012 - see http://ratings.icu.ie/articles/18 (Part 2).
+      return if !allow_new_bonus && @bonus == 0
       # Rounding is performed in places to emulate the older MSAccess implementation.
       return if @type != :rated || @kfactor <= 24 || @results.size <= 4 || @rating >= 2100
       change = rating_change

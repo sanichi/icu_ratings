@@ -57,15 +57,20 @@ module ICU
   #
   # See ICU::RatedPlayer and ICU::RatedResult for more details.
   #
-  # The <em>rate!</em> method takes some optional arguments to control the algoritm, for example:
+  # The <em>rate!</em> method takes some optional arguments to control the algorithm, for example:
   #
-  #   t.rate!(max_iterations2: 30)
+  #   t.rate!(max_iterations2: 30, phase_2_bonuses: false)    # these are the recommended options
   #
-  # The complete set of current options is:
+  # The complete set of current options, with their defaults, is:
   #
   # * <em>max_iterations1</em>: the maximum number of re-estimation iterations before the bonus calculation (default <b>30</b>)
   # * <em>max_iterations2</em>: the maximum number of re-estimation iterations after the bonus calculation (default <b>1</b>)
   # * <em>threshold</em>: the maximum difference allowed between re-estimated ratings in a stabe solution (default <b>0.5</b>)
+  # * <em>phase_2_bonuses</em>: allow new bonuses in the second phase of calculation (default <b>true</b>)
+  #
+  # The defaults correspond to the original algorithm. However, it is recommended not to use the defaults for
+  # <em>max_iterations2</em> and <em>phase_2_bonuses</em> but to use <em>30</em> and <em>false</em> instead.
+  # See <a href="http://ratings.icu.ie/articles/18">this article</a> for more details.
   #
   # == Error Handling
   #
@@ -109,7 +114,8 @@ module ICU
     # Rate the tournament. Called after all players and results have been added.
     def rate!(opt={})
       max_iterations1 = opt[:max_iterations1] || 30
-      max_iterations2 = opt[:max_iterations2] || 1
+      max_iterations2 = opt[:max_iterations2] || 1                                      # legacy default - see http://ratings.icu.ie/articles/18 (Part 1)
+      phase_2_bonuses = opt.has_key?(:phase_2_bonuses) ? opt[:phase_2_bonuses] : true   # legacy default - see http://ratings.icu.ie/articles/18 (Part 2)
       threshold = opt[:threshold] || 0.5
       players.each { |p| p.init }
       @iterations1 = performance_ratings(max_iterations1, threshold)
@@ -117,7 +123,7 @@ module ICU
       if !no_bonuses && calculate_bonuses > 0
         players.each { |p| p.rate! }
         @iterations2 = performance_ratings(max_iterations2, threshold)
-        calculate_bonuses
+        calculate_bonuses(phase_2_bonuses)
       else
         @iterations2 = 0
       end
@@ -164,8 +170,8 @@ module ICU
     end
 
     # Calculate bonuses for all players and return the number who got one.
-    def calculate_bonuses
-      @player.values.inject(0) { |t,p| t + (p.calculate_bonus ? 1 : 0) }
+    def calculate_bonuses(allow_new_bonus=true)
+      @player.values.inject(0) { |t,p| t + (p.calculate_bonus(allow_new_bonus) ? 1 : 0) }
     end
   end
 end

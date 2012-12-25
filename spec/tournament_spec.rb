@@ -2001,11 +2001,9 @@ module ICU
       it "should produce inconsistent results with default settings" do
         @t.rate!
 
-        @p.new_rating.should be_within(0.5).of(713)  # the original inconsistent calculation
         @p.new_rating.should == @p.performance
 
         @o1.bonus.should == 16
-        @o1.new_rating.should be_within(0.5).of(1013)
         @o2.bonus.should == 0
         @o3.bonus.should == 0
         @o4.bonus.should == 0
@@ -2021,13 +2019,31 @@ module ICU
         @t.iterations2.should == 1
       end
 
-      it "should produce consistent results somehow" do
-        pending "a fix to the algorithm (the number of iterations does not help)"
-
+      it "should produce inconsistent results even with more 2nd phase iterations" do
         @t.rate!(max_iterations2: 30)
 
+        @p.new_rating.should == @p.performance
+
         @o1.bonus.should == 16
-        @o1.new_rating.should be_within(0.5).of(1013)
+        @o2.bonus.should == 0
+        @o3.bonus.should == 0
+        @o4.bonus.should == 0
+        @o5.bonus.should == 0
+        @o6.bonus.should == 0
+
+        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus == 0 ? o.rating : o.new_rating }
+
+        performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0 - 400.0 / 3.0
+        performance.should_not be_within(0.5).of(@p.new_rating)
+
+        @t.iterations1.should be > 1
+        @t.iterations2.should be > 1
+      end
+
+      it "should produce consistent results only when new bonuses in phase 2 are disallowed" do
+        @t.rate!(max_iterations2: 30, phase_2_bonuses: false)
+
+        @o1.bonus.should == 0  # no bonus this time because it comes from 2nd phase
         @o2.bonus.should == 0
         @o3.bonus.should == 0
         @o4.bonus.should == 0
