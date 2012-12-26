@@ -57,27 +57,20 @@ module ICU
   #
   # See ICU::RatedPlayer and ICU::RatedResult for more details.
   #
-  # The <em>rate!</em> method takes some optional arguments to control the algorithm, for example:
+  # The <em>rate!</em> method takes an optional <em>version</em> argument to control the precise algorithm, for example:
   #
-  #   t.rate!(max_iterations2: 30, phase_2_bonuses: false)    # these are the recommended options
+  #   t.rate!(version: 2)
   #
-  # The complete set of current options, with their defaults, is:
-  #
-  # * <em>max_iterations1</em>: the maximum number of re-estimation iterations before the bonus calculation (default <b>30</b>)
-  # * <em>max_iterations2</em>: the maximum number of re-estimation iterations after the bonus calculation (default <b>1</b>)
-  # * <em>threshold</em>: the maximum difference allowed between re-estimated ratings in a stabe solution (default <b>0.5</b>)
-  # * <em>phase_2_bonuses</em>: allow new bonuses in the second phase of calculation (default <b>true</b>)
-  #
-  # The defaults correspond to the original algorithm. However, it is recommended not to use the defaults for
-  # <em>max_iterations2</em> and <em>phase_2_bonuses</em> but to use <em>30</em> and <em>false</em> instead.
-  # See <a href="http://ratings.icu.ie/articles/18">this article</a> for more details.
+  # Without a version number or with version <em>0</em>, the original pre-2012 algorithm is used. However, some improvements
+  # have since been found (see http://ratings.icu.ie/articles/18 for more details) and currently
+  # the recommended version to use is <b>2</b>.
   #
   # == Error Handling
   #
   # Some of the above methods have the potential to raise RuntimeError exceptions.
-  # In the case of _add_player_ and _add_result_, the use of invalid arguments
-  # would cause such an error. Theoretically, the <em>rate!</em> method could also throw an
-  # exception if the iterative algorithm it uses to estimate performance ratings
+  # In the case of _add_player_ and _add_result_, the use of invalid arguments would
+  # cause such an error. Theoretically, the <em>rate!</em> method could also throw
+  # an exception if the iterative algorithm it uses to estimate performance ratings
   # of unrated players failed to converge. However an instance of non-convergence
   # has yet to be observed in practice.
   #
@@ -113,17 +106,35 @@ module ICU
 
     # Rate the tournament. Called after all players and results have been added.
     def rate!(opt={})
-      max_iterations1 = opt[:max_iterations1] || 30
-      max_iterations2 = opt[:max_iterations2] || 1                                      # legacy default - see http://ratings.icu.ie/articles/18 (Part 1)
-      phase_2_bonuses = opt.has_key?(:phase_2_bonuses) ? opt[:phase_2_bonuses] : true   # legacy default - see http://ratings.icu.ie/articles/18 (Part 2)
-      threshold = opt[:threshold] || 0.5
+      # The original algorithm (version 0).
+      max_iterations  = [30, 1]
+      phase_2_bonuses = true
+      update_bonuses  = false
+      threshold       = 0.5
+
+      # New versions of the algorithm.
+      version = opt[:version].to_i
+      if version >= 1
+        # See http://ratings.icu.ie/articles/18 (Part 1)
+        max_iterations[1] = 30
+      end
+      if version >= 2
+        # See http://ratings.icu.ie/articles/18 (Part 2)
+        phase_2_bonuses = false
+        update_bonuses  = true
+        threshold       = 0.1
+      end
+
+      # Phase 1.
       players.each { |p| p.init }
-      @iterations1 = performance_ratings(max_iterations1, threshold)
+      @iterations1 = performance_ratings(max_iterations[0], threshold)
       players.each { |p| p.rate! }
+
+      # Phase 2.
       if !no_bonuses && calculate_bonuses > 0
-        players.each { |p| p.rate! }
-        @iterations2 = performance_ratings(max_iterations2, threshold)
-        calculate_bonuses(phase_2_bonuses)
+        players.each { |p| p.rate!(update_bonuses) }
+        @iterations2 = performance_ratings(max_iterations[1], threshold)
+        calculate_bonuses if phase_2_bonuses
       else
         @iterations2 = 0
       end
@@ -157,7 +168,7 @@ module ICU
       @player = Hash.new
     end
 
-    # Calculate performance ratings either iteratively or with just one sweep for bonus calculations.
+    # Calculate performance ratings either iteratively up to a maximum number.
     def performance_ratings(max, thresh)
       stable, count = false, 0
       while !stable && count < max
@@ -170,8 +181,8 @@ module ICU
     end
 
     # Calculate bonuses for all players and return the number who got one.
-    def calculate_bonuses(allow_new_bonus=true)
-      @player.values.inject(0) { |t,p| t + (p.calculate_bonus(allow_new_bonus) ? 1 : 0) }
+    def calculate_bonuses
+      @player.values.inject(0) { |t,p| t + (p.calculate_bonus ? 1 : 0) }
     end
   end
 end

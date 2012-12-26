@@ -1218,7 +1218,7 @@ module ICU
         @t.iterations2.should be_nil
       end
 
-      it "should produce inconsistent results with default settings" do
+      it "should produce inconsistent results with original algorithm" do
         @t.rate!
 
         @p.new_rating.should be_within(0.5).of(763)  # the original calculation
@@ -1239,8 +1239,8 @@ module ICU
         @t.iterations2.should == 1
       end
 
-      it "should produce consistent results with more iterations after the bonus stage" do
-        @t.rate!(max_iterations2: 30)
+      it "should produce consistent results with version 1 algorithm" do
+        @t.rate!(version: 1)
 
         @p.new_rating.should_not be_within(0.5).of(763)  # the new calculation is different
 
@@ -1265,7 +1265,7 @@ module ICU
       before(:each) do
         @t = ICU::RatedTournament.new(desc: "Bunratty Minor 2012")
 
-        # Add the player's of most interest (Sasha-Ettore Faleschini and his opponents).
+        # Add the players of most interest (Sasha-Ettore Faleschini and his opponents).
         @p  = @t.add_player(1752, desc: "Sasha-Ettore Faleschini")
         @o1 = @t.add_player(1748, desc: "John P. Dunne",      rating:  946, kfactor: 40)
         @o2 = @t.add_player(1755, desc: "Jack Fitzgerald",    rating:  913, kfactor: 40)
@@ -1276,57 +1276,57 @@ module ICU
 
         # Add all the other players.
         @t.add_player(1730, desc: "Jeffrey Alfred",           rating: 1058, kfactor: 40)
-        @t.add_player(1731, desc: "Suliman Ali",              rating: 1166, rating:   17)
+        @t.add_player(1731, desc: "Suliman Ali",              rating: 1166, games:   17)
         @t.add_player(1733, desc: "Dylan Boland")
         @t.add_player(1734, desc: "Shane Briggs",             rating: 1079, kfactor: 24)
         @t.add_player(1735, desc: "Joe Browne",               rating:  919, kfactor: 24)
-        @t.add_player(1736, desc: "Kieran Burke",             rating:  765, rating:  10)
+        @t.add_player(1736, desc: "Kieran Burke",             rating:  765, games:   10)
         @t.add_player(1737, desc: "Liam Cadogan",             rating: 1002, kfactor: 24)
-        @t.add_player(1738, desc: "Evan Cahill",              rating:  494, rating:   4)
+        @t.add_player(1738, desc: "Evan Cahill",              rating:  494, games:    4)
         @t.add_player(1739, desc: "Joseph Cesar",             rating:  751, kfactor: 40)
-        @t.add_player(1740, desc: "Joshua Cesar",             rating:  403, rating:  10)
+        @t.add_player(1740, desc: "Joshua Cesar",             rating:  403, games:   10)
         @t.add_player(1741, desc: "John G. Connolly",         rating:  952, kfactor: 32)
         @t.add_player(1742, desc: "Fiona Cormican",           rating:  483, kfactor: 32)
-        @t.add_player(1743, desc: "Joe Cronin",               rating:  601, rating:   6)
-        @t.add_player(1744, desc: "Aaron Daly",               rating:  699, rating:  12)
+        @t.add_player(1743, desc: "Joe Cronin",               rating:  601, games:    6)
+        @t.add_player(1744, desc: "Aaron Daly",               rating:  699, games:   12)
         @t.add_player(1745, desc: "Conor Devilly",            rating:  676, kfactor: 40)
         @t.add_player(1746, desc: "Charles Dillon")
         @t.add_player(1747, desc: "Jack Donovan")
         @t.add_player(1749, desc: "Thomas Dunne",             rating:  887, kfactor: 32)
         @t.add_player(1750, desc: "Michael Eyers",            rating:  857, kfactor: 32)
-        @t.add_player(1751, desc: "Sean Fagan",               rating:  243, rating:  10)
-        @t.add_player(1753, desc: "Victoria Fennell",         rating:  166, rating:  11)
+        @t.add_player(1751, desc: "Sean Fagan",               rating:  243, games:   10)
+        @t.add_player(1753, desc: "Victoria Fennell",         rating:  166, games:   11)
         @t.add_player(1754, desc: "Mark Finn-Lynch")
-        @t.add_player(1756, desc: "Peter Fletcher",           rating:  680, rating:  18)
+        @t.add_player(1756, desc: "Peter Fletcher",           rating:  680, games:   18)
         @t.add_player(1757, desc: "Darragh Flynn",            rating:  296, kfactor: 40)
-        @t.add_player(1758, desc: "Geordan Freeman",          rating:  413, rating:   4)
+        @t.add_player(1758, desc: "Geordan Freeman",          rating:  413, games:    4)
         @t.add_player(1759, desc: "Ruairi Freeman",           rating:  582, kfactor: 40)
         @t.add_player(1760, desc: "Aoife Gallagher")
         @t.add_player(1761, desc: "Hannah Gallagher")
         @t.add_player(1762, desc: "Tommy Gallagher")
         @t.add_player(1763, desc: "Leslie Garabedian")
-        @t.add_player(1764, desc: "Alexander Gillett",        rating:  850, rating:  19)
-        @t.add_player(1765, desc: "Jan Glegolski",            rating:  525, rating:  16)
+        @t.add_player(1764, desc: "Alexander Gillett",        rating:  850, games:   19)
+        @t.add_player(1765, desc: "Jan Glegolski",            rating:  525, games:   16)
         @t.add_player(1767, desc: "Mark Halley",              rating: 1280, kfactor: 40)
-        @t.add_player(1768, desc: "Siobhan Halley",           rating:  434, rating:  18)
-        @t.add_player(1769, desc: "Luke Hayden",              rating:  781, rating:   6)
-        @t.add_player(1770, desc: "Colm Hehir",               rating:  564, rating:  16)
-        @t.add_player(1771, desc: "Donal Hehir",              rating:  424, rating:   6)
+        @t.add_player(1768, desc: "Siobhan Halley",           rating:  434, games:   18)
+        @t.add_player(1769, desc: "Luke Hayden",              rating:  781, games:    6)
+        @t.add_player(1770, desc: "Colm Hehir",               rating:  564, games:   16)
+        @t.add_player(1771, desc: "Donal Hehir",              rating:  424, games:    6)
         @t.add_player(1772, desc: "Andrew Ingram",            rating:  859, kfactor: 32)
         @t.add_player(1773, desc: "Rory Jackson")
         @t.add_player(1774, desc: "Tom Kearney",              rating:  924, kfactor: 40)
-        @t.add_player(1775, desc: "Jamie Kearns",             rating:  753, rating:  11)
+        @t.add_player(1775, desc: "Jamie Kearns",             rating:  753, games:   11)
         @t.add_player(1777, desc: "Thomas Keating",           rating:  864, kfactor: 40)
         @t.add_player(1778, desc: "Darragh Kennedy",          rating: 1052, kfactor: 40)
         @t.add_player(1779, desc: "Stephen Kennedy",          rating:  490, kfactor: 40)
         @t.add_player(1780, desc: "Jonathan Kiely",           rating: 1117, kfactor: 24)
         @t.add_player(1781, desc: "Kevin Kilduff",            rating: 1116, kfactor: 40)
-        @t.add_player(1782, desc: "Conor Kirby MacGuill",     rating:  410, rating:   9)
+        @t.add_player(1782, desc: "Conor Kirby MacGuill",     rating:  410, games:    9)
         @t.add_player(1783, desc: "Wiktor Kwapinski")
         @t.add_player(1784, desc: "Andrew Kyne-Delaney",      rating:  869, kfactor: 40)
         @t.add_player(1785, desc: "Samuel Lenihan",           rating:  683, kfactor: 40)
         @t.add_player(1786, desc: "Haoang Li",                rating:  667, kfactor: 40)
-        @t.add_player(1787, desc: "Stephen Li",               rating:  880, rating:  17)
+        @t.add_player(1787, desc: "Stephen Li",               rating:  880, games:   17)
         @t.add_player(1788, desc: "Desmond Martin",           rating: 1018, kfactor: 24)
         @t.add_player(1789, desc: "Clare McCarrick",          rating:  805, kfactor: 40)
         @t.add_player(1790, desc: "Padraig McCullough",       rating:  676, kfactor: 24)
@@ -1339,7 +1339,7 @@ module ICU
         @t.add_player(1797, desc: "Jacob Miller")
         @t.add_player(1799, desc: "Diarmuid Minnock",         rating:  760, kfactor: 40)
         @t.add_player(1800, desc: "Michael Morgan",           rating:  889, kfactor: 32)
-        @t.add_player(1801, desc: "Alex Mulligan",            rating:  603, rating:  17)
+        @t.add_player(1801, desc: "Alex Mulligan",            rating:  603, games:   17)
         @t.add_player(1802, desc: "Scott Mulligan",           rating: 1100, kfactor: 40)
         @t.add_player(1803, desc: "Jessica Mulqueen-Danaher", rating:  286, kfactor: 40)
         @t.add_player(1804, desc: "Christopher Murphy",       rating:  990, kfactor: 40)
@@ -1348,10 +1348,10 @@ module ICU
         @t.add_player(1807, desc: "Dan O'Brien",              rating:  789, kfactor: 40)
         @t.add_player(1808, desc: "Pat O'Brien",              rating:  970, kfactor: 24)
         @t.add_player(1809, desc: "Michael Joseph O'Connell", rating: 1010, kfactor: 32)
-        @t.add_player(1810, desc: "John P. O'Connor",         rating:  242, rating:   6)
+        @t.add_player(1810, desc: "John P. O'Connor",         rating:  242, games:    6)
         @t.add_player(1811, desc: "Ross O'Connor",            rating:  812, kfactor: 40)
         @t.add_player(1812, desc: "Colm O'Muireagain",        rating:  950, kfactor: 32)
-        @t.add_player(1813, desc: "Barry O'Reilly",           rating:  736, rating:   6)
+        @t.add_player(1813, desc: "Barry O'Reilly",           rating:  736, games:    6)
         @t.add_player(1814, desc: "Jim O'Reilly",             rating:  784, kfactor: 40)
         @t.add_player(1815, desc: "David Piercy",             rating:  970, kfactor: 32)
         @t.add_player(1816, desc: "Agnieszka Pozniak",        rating:  906, kfactor: 40)
@@ -1362,8 +1362,8 @@ module ICU
         @t.add_player(1821, desc: "Stephen Sheehan")
         @t.add_player(1822, desc: "Kevin Singpurwala",        rating:  790, kfactor: 40)
         @t.add_player(1823, desc: "Kaj Skubiszak")
-        @t.add_player(1824, desc: "Jack Staed",               rating:  133, rating:  10)
-        @t.add_player(1825, desc: "Devin Tarleton",           rating:  852, rating:  11)
+        @t.add_player(1824, desc: "Jack Staed",               rating:  133, games:   10)
+        @t.add_player(1825, desc: "Devin Tarleton",           rating:  852, games:   11)
         @t.add_player(1826, desc: "M. Thangaramanujam",       rating:  813, kfactor: 24)
         @t.add_player(1827, desc: "Haley Tomlinson")
         @t.add_player(1828, desc: "Peter Urwin",              rating:  848, kfactor: 40)
@@ -1998,7 +1998,7 @@ module ICU
         @t.iterations2.should be_nil
       end
 
-      it "should produce inconsistent results with default settings" do
+      it "should produce inconsistent results with original algorithm" do
         @t.rate!
 
         @p.new_rating.should == @p.performance
@@ -2019,8 +2019,8 @@ module ICU
         @t.iterations2.should == 1
       end
 
-      it "should produce inconsistent results even with more 2nd phase iterations" do
-        @t.rate!(max_iterations2: 30)
+      it "should produce inconsistent results with version 1 algorithm" do
+        @t.rate!(version: 1)
 
         @p.new_rating.should == @p.performance
 
@@ -2040,8 +2040,8 @@ module ICU
         @t.iterations2.should be > 1
       end
 
-      it "should produce consistent results only when new bonuses in phase 2 are disallowed" do
-        @t.rate!(max_iterations2: 30, phase_2_bonuses: false)
+      it "should produce consistent results with version 2 algorithm" do
+        @t.rate!(version: 2)
 
         @o1.bonus.should == 0  # no bonus this time because it comes from 2nd phase
         @o2.bonus.should == 0
@@ -2053,6 +2053,178 @@ module ICU
         ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus == 0 ? o.rating : o.new_rating }
 
         performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0 - 400.0 / 3.0
+        performance.should be_within(0.5).of(@p.new_rating)
+
+        @t.iterations1.should be > 1
+        @t.iterations2.should be > 1
+      end
+
+      it "should produce consistent results with version 3 algorithm" do
+        @t.rate!(version: 3)
+
+        @o1.bonus.should == 0  # no bonus this time because it comes from 2nd phase
+        @o2.bonus.should == 0
+        @o3.bonus.should == 0
+        @o4.bonus.should == 0
+        @o5.bonus.should == 0
+        @o6.bonus.should == 0
+
+        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus == 0 ? o.rating : o.new_rating }
+
+        performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0 - 400.0 / 3.0
+        performance.should be_within(0.5).of(@p.new_rating)
+
+        @t.iterations1.should be > 1
+        @t.iterations2.should be > 1
+      end
+    end
+
+    context "#rate - Dierdre Turner in the Limerick U1400 2012" do
+      before(:each) do
+        @t = ICU::RatedTournament.new(desc: "Limerick U1400 2012")
+
+        # Add the players of most interest (Dierdre Turner and her opponents).
+        @p  = @t.add_player(6697, desc: "Dierdre Turner")
+        @o1 = @t.add_player(6678, desc: "John P. Dunne",      rating:  980, kfactor: 40)
+        @o2 = @t.add_player(6694, desc: "Jordan O'Sullivan")
+        @o3 = @t.add_player(6681, desc: "Ruairi Freeman",     rating:  537, kfactor: 40)
+        @o4 = @t.add_player(6676, desc: "Joe Cronin",         rating:  682, kfactor: 32)
+        @o5 = @t.add_player(6675, desc: "Jeffrey Alfred",     rating: 1320, kfactor: 40)
+        @o6 = @t.add_player(6687, desc: "Roisin MacNamee",    rating:  460, games:    7)
+
+        # Add all the other players.
+        @t.add_player(6679, desc: "Thomas Senior Dunne",      rating:  876, kfactor: 32)
+        @t.add_player(6682, desc: "John Hensey",              rating: 1347, kfactor: 24)
+        @t.add_player(6683, desc: "Noel Keating",             rating:  622, kfactor: 32)
+        @t.add_player(6684, desc: "Thomas Keating",           rating:  886, kfactor: 40)
+        @t.add_player(6686, desc: "Nora MacNamee",            rating:  508, kfactor: 40)
+        @t.add_player(6690, desc: "Robbie Meaney",            rating: 1020, kfactor: 40)
+        @t.add_player(6691, desc: "Stephen Meaney",           rating:  979, kfactor: 40)
+        @t.add_player(6692, desc: "Jessica Mulqueen-Danaher", rating:  435, kfactor: 40)
+        @t.add_player(6693, desc: "Michael Joseph O'Connell", rating:  965, kfactor: 32)
+        @t.add_player(6677, desc: "Adam Dean",                rating:  652, games:    6)
+        @t.add_player(6680, desc: "Geordan Freeman",          rating:  344, games:   10)
+        @t.add_player(6685, desc: "Eamon MacNamee")
+        @t.add_player(6688, desc: "Pippa Madigan")
+        @t.add_player(6689, desc: "John McNamara")
+        @t.add_player(6695, desc: "Grigory Ramendik")
+        @t.add_player(6696, desc: "Mark David Tonita")
+        @t.add_player(6698, desc: "Eoghan Turner")
+
+        # Dierdre's results.
+        @t.add_result(1, 6697, 6678, "L")
+        @t.add_result(2, 6697, 6694, "W")
+        @t.add_result(3, 6697, 6681, "W")
+        @t.add_result(4, 6697, 6676, "L")
+        @t.add_result(5, 6697, 6675, "L")
+        @t.add_result(6, 6697, 6687, "W")
+
+        # Other results.
+        @t.add_result(1, 6689, 6676, "L")
+        @t.add_result(1, 6693, 6677, "L")
+        @t.add_result(1, 6695, 6679, "L")
+        @t.add_result(1, 6694, 6681, "L")
+        @t.add_result(1, 6692, 6682, "L")
+        @t.add_result(1, 6688, 6683, "L")
+        @t.add_result(1, 6698, 6684, "D")
+        @t.add_result(1, 6691, 6685, "W")
+        @t.add_result(1, 6696, 6686, "L")
+        @t.add_result(1, 6690, 6687, "W")
+        @t.add_result(2, 6684, 6675, "D")
+        @t.add_result(2, 6682, 6676, "W")
+        @t.add_result(2, 6698, 6677, "L")
+        @t.add_result(2, 6683, 6678, "L")
+        @t.add_result(2, 6686, 6679, "L")
+        @t.add_result(2, 6690, 6680, "W")
+        @t.add_result(2, 6691, 6681, "W")
+        @t.add_result(2, 6693, 6685, "W")
+        @t.add_result(2, 6695, 6687, "L")
+        @t.add_result(2, 6692, 6689, "W")
+        @t.add_result(3, 6678, 6675, "W")
+        @t.add_result(3, 6687, 6676, "L")
+        @t.add_result(3, 6682, 6677, "W")
+        @t.add_result(3, 6696, 6680, "D")
+        @t.add_result(3, 6686, 6683, "L")
+        @t.add_result(3, 6693, 6684, "D")
+        @t.add_result(3, 6698, 6685, "W")
+        @t.add_result(3, 6692, 6688, "W")
+        @t.add_result(3, 6695, 6689, "L")
+        @t.add_result(3, 6691, 6690, "W")
+        @t.add_result(4, 6687, 6675, "L")
+        @t.add_result(4, 6683, 6677, "W")
+        @t.add_result(4, 6682, 6678, "D")
+        @t.add_result(4, 6691, 6679, "W")
+        @t.add_result(4, 6684, 6680, "W")
+        @t.add_result(4, 6693, 6681, "L")
+        @t.add_result(4, 6695, 6685, "W")
+        @t.add_result(4, 6694, 6686, "L")
+        @t.add_result(4, 6692, 6690, "L")
+        @t.add_result(4, 6698, 6696, "W")
+        @t.add_result(5, 6683, 6676, "W")
+        @t.add_result(5, 6692, 6677, "L")
+        @t.add_result(5, 6691, 6678, "W")
+        @t.add_result(5, 6698, 6679, "D")
+        @t.add_result(5, 6687, 6680, "W")
+        @t.add_result(5, 6689, 6681, "L")
+        @t.add_result(5, 6690, 6682, "L")
+        @t.add_result(5, 6686, 6684, "L")
+        @t.add_result(5, 6696, 6693, "L")
+        @t.add_result(5, 6695, 6694, "D")
+        @t.add_result(6, 6677, 6675, "D")
+        @t.add_result(6, 6698, 6676, "W")
+        @t.add_result(6, 6679, 6678, "L")
+        @t.add_result(6, 6694, 6680, "L")
+        @t.add_result(6, 6690, 6681, "W")
+        @t.add_result(6, 6691, 6682, "L")
+        @t.add_result(6, 6684, 6683, "L")
+        @t.add_result(6, 6696, 6685, "W")
+        @t.add_result(6, 6689, 6686, "L")
+        @t.add_result(6, 6693, 6692, "W")
+      end
+
+      it "should be setup properly" do
+        @p.desc.should  == "Dierdre Turner"
+        @o1.desc.should == "John P. Dunne"
+        @o2.desc.should == "Jordan O'Sullivan"
+        @o3.desc.should == "Ruairi Freeman"
+        @o4.desc.should == "Joe Cronin"
+        @o5.desc.should == "Jeffrey Alfred"
+        @o6.desc.should == "Roisin MacNamee"
+
+        @p.type.should  == :unrated
+        @o1.type.should == :rated
+        @o2.type.should == :unrated
+        @o3.type.should == :rated
+        @o4.type.should == :rated
+        @o5.type.should == :rated
+        @o6.type.should == :provisional
+
+        @o1.rating.should == 980
+        @o2.rating.should be_nil
+        @o3.rating.should == 537
+        @o4.rating.should == 682
+        @o5.rating.should == 1320
+        @o6.rating.should == 460
+
+        @t.iterations1.should be_nil
+        @t.iterations2.should be_nil
+      end
+
+      it "should produce consistent results with version 2 algorithm" do
+        @t.rate!(version: 2)
+
+        @p.new_rating.should == @p.performance
+
+        @o1.bonus.should == 23
+        @o2.bonus.should == 0
+        @o3.bonus.should == 0
+        @o4.bonus.should == 0
+        @o5.bonus.should == 0
+        @o6.bonus.should == 0
+
+        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus > 0 || o.type != :rated ? o.new_rating : o.rating }
+
+        performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0
         performance.should be_within(0.5).of(@p.new_rating)
 
         @t.iterations1.should be > 1

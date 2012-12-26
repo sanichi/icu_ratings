@@ -4,11 +4,11 @@ For calculating the Elo ratings of players in a chess tournament. The software i
 the Irish Chess Union's existing rating software written in Microsoft Visual Basic and
 intended to replace it in the near future.
 
-The rating calculations are identical to FIDE's for tournaments that consist entirely
-of established players (with the exception of player bonuses, which can be turned off).
+The rating calculations are the same as FIDE's for tournaments that consist entirely
+of established players with the exception of player bonuses (which can be turned off)
+and different rules for assigning K-factors.
 However, the ICU has it's own peculiar way of dealing with unrated players (players
-with only a provisional rating or without any prior rating) which is not the same as
-FIDE's.
+with only a provisional rating or without any prior rating) which is different to FIDE's.
 
 == Install
 
@@ -35,9 +35,9 @@ Then add results (see ICU::RatedResult for details):
   t.add_result(4, 2, 1, 'D')    # players 1 and 2 drew in round 4
   # ...
 
-Then call the <em>rate!</em> method.
+Then call the <em>rate!</em> method using the recommended version of the algorithm (see ICU::RatedTournament).
 
-  t.rate!
+  t.rate!(version: 2)
 
 If no exceptions have been raised yet, the tournament is now rated and the
 main results of the rating calculations can be extracted by querying the

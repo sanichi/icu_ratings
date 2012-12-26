@@ -85,25 +85,12 @@ module ICU
   #
   # == After the Tournament is Rated
   #
-  # The main rating calculations are avaiable from player methods (see ICU::RatedPlayer)
+  # The main rating calculations are available from player methods (see ICU::RatedPlayer)
   # but additional details are available via methods of each player's individual results:
   # _expected_score_, _rating_change_.
   #
   class RatedResult
-    # The round number.
-    def round
-      @round
-    end
-
-    # The player's opponent (an instance of ICU::RatedPlayer).
-    def opponent
-      @opponent
-    end
-
-    # The player's score in this game (1.0, 0.5 or 0.0).
-    def score
-      @score
-    end
+    attr_reader :round, :opponent, :score
 
     # After the tournament has been rated, this returns the expected score (between 0 and 1)
     # for the player based on the rating difference with the opponent scaled by 400.
