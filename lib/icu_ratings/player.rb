@@ -128,24 +128,29 @@ module ICU
   # After the <em>rate!</em> method has been called on the ICU::RatedTournament object, the results
   # of the rating calculations are available via various methods of the player objects:
   #
-  # _new_rating_::      This is the player's new rating. For rated players it is their old rating
-  #                     plus their _rating_change_ plus their _bonus_ (if any). For provisional players
-  #                     it is their performance rating including their previous games. For unrated
-  #                     players it is their tournament performance rating. New ratings are not
-  #                     calculated for foreign players so this method just returns their start _rating_.
-  # _rating_change_::   This is calculated from a rated player's old rating, their K-factor and the sum
-  #                     of expected scores in each game. The same as the difference between the old and
-  #                     new ratings (unless there is a bonus). Not available for other player types.
-  # _performance_::     This returns the tournament rating performance for rated, unrated and
-  #                     foreign players. For provisional players it returns a weighted average
-  #                     of the player's tournament performance and their previous games. For
-  #                     provisional and unrated players it is the same as _new_rating_.
-  # _expected_score_::  This returns the sum of expected scores over all results for all player types.
-  #                     For rated players, this number times the K-factor gives their rating change.
-  #                     It is calculated for provisional, unrated and foreign players but not actually
-  #                     used to estimate new ratings (for provisional and unrated players performance
-  #                     estimates are used instead).
-  # _bonus_::           The bonus received by a rated player (usually zero). Not available for other player types.
+  # _new_rating_::     This is the player's new rating. For rated players it is their old rating
+  #                    plus their _rating_change_ plus their _bonus_ (if any). For provisional players
+  #                    it is their performance rating including their previous games. For unrated
+  #                    players it is their tournament performance rating. New ratings are not
+  #                    calculated for foreign players so this method just returns their start _rating_.
+  # _rating_change_::  This is calculated from a rated player's old rating, their K-factor and the sum
+  #                    of expected scores in each game. The same as the difference between the old and
+  #                    new ratings (unless there is a bonus). Not available for other player types.
+  # _performance_::    This returns the tournament rating performance for rated, unrated and
+  #                    foreign players. For provisional players it returns a weighted average
+  #                    of the player's tournament performance and their previous games. For
+  #                    provisional and unrated players it is the same as _new_rating_.
+  # _expected_score_:: This returns the sum of expected scores over all results for all player types.
+  #                    For rated players, this number times the K-factor gives their rating change.
+  #                    It is calculated for provisional, unrated and foreign players but not actually
+  #                    used to estimate new ratings (for provisional and unrated players performance
+  #                    estimates are used instead).
+  # _bonus_::          The bonus received by a rated player (usually zero). Only available for rated
+  #                    players.
+  # _pb_rating_::      A rated player's pre-bonus rating (rounded). Only for rated players and
+  #                    returns nil for players who are ineligible for a bonus.
+  # _pb_performance_:: A rated player's pre-bonus performance (rounded). Only for rated players and
+  #                    returns nil for players ineligible for a bonus.
   #
   # == Unrateable Players
   #
@@ -221,7 +226,7 @@ module ICU
     end
 
     class FullRating < RatedPlayer # :nodoc:
-      attr_reader :rating, :kfactor, :bonus
+      attr_reader :rating, :kfactor, :bonus, :pb_rating, :pb_performance
 
       def initialize(num, desc, rating, kfactor)
         @type = :rated
@@ -232,6 +237,8 @@ module ICU
       end
 
       def reset
+        @pb_rating = nil
+        @pb_performance = nil
         @bonus_rating = nil
         @bonus = 0
         super
@@ -255,6 +262,8 @@ module ICU
       def calculate_bonus
         return if @kfactor <= 24 || @results.size <= 4 || @rating >= 2100
         change = rating_change
+        @pb_rating = (@rating + change).round
+        @pb_performance = @performance.round
         return if change <= 35 || @rating + change >= 2100
         threshold = 32 + 3 * (@results.size - 4)
         bonus = (change - threshold).round

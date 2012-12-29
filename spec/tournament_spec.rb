@@ -666,6 +666,27 @@ module ICU
           p.bonus.should == bonus
         end
       end
+
+      it "players eligible for a bonus should have pre-bonus data" do
+        [
+          [1, false], # Howley
+          [2, false], # O'Brien
+          [3,  true], # Eyers
+          [4,  true], # Guinan
+          [5,  true], # Cooke
+          [6,  true], # Benson
+        ].each do |item|
+          num, pre_bonus = item
+          p = @t.player(num)
+          if pre_bonus
+            p.pb_rating.should be_kind_of Fixnum
+            p.pb_performance.should be_kind_of Fixnum
+          else
+            p.pb_rating.should be_nil
+            p.pb_performance.should be_nil
+          end
+        end
+      end
     end
 
     context "#rate - a tournament with one rated player who got a bonus and the rest foreigners" do
@@ -722,6 +743,12 @@ module ICU
             p.new_rating.should == p.rating
           end
         end
+      end
+      
+      it "players eligible for a bonus should have pre-bonus data" do
+        p = @t.player(1)
+        p.pb_rating.should be_kind_of Fixnum
+        p.pb_performance.should be_kind_of Fixnum
       end
     end
 
