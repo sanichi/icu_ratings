@@ -3,48 +3,44 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 module ICU
   describe RatedPlayer do
-    context "#new - different types of players" do
+    context "#factory - different types of players" do
       before(:all) do
-        @r = ICU::RatedPlayer.new(1, :rating => 2000, :kfactor => 10.0)
-        @p = ICU::RatedPlayer.new(2, :rating => 1500, :games => 10)
-        @f = ICU::RatedPlayer.new(3, :rating => 2500)
-        @u = ICU::RatedPlayer.new(4)
+        @r = ICU::RatedPlayer.factory(1, :rating => 2000, :kfactor => 10.0)
+        @p = ICU::RatedPlayer.factory(2, :rating => 1500, :games => 10)
+        @f = ICU::RatedPlayer.factory(3, :rating => 2500)
+        @u = ICU::RatedPlayer.factory(4)
       end
 
       it "rated players have a rating and k-factor" do
         @r.num.should     == 1
         @r.rating.should  == 2000
         @r.kfactor.should == 10.0
-        @r.games.should   be_nil
         @r.type.should    == :rated
-        @r.full_rating?.should be_true
+        @r.should_not respond_to(:games)
       end
 
       it "provisionally rated players have a rating and number of games" do
-        @p.num.should     == 2
-        @p.rating.should  == 1500
-        @p.kfactor.should be_nil
-        @p.games.should   == 10
-        @p.type.should    == :provisional
-        @p.full_rating?.should be_false
+        @p.num.should    == 2
+        @p.rating.should == 1500
+        @p.games.should  == 10
+        @p.type.should   == :provisional
+        @p.should_not respond_to(:kfactor)
       end
 
       it "foreign players just have a rating" do
-        @f.num.should     == 3
-        @f.rating.should  == 2500
-        @f.kfactor.should be_nil
-        @f.games.should   be_nil
-        @f.type.should    == :foreign
-        @f.full_rating?.should be_true
+        @f.num.should    == 3
+        @f.rating.should == 2500
+        @f.type.should   == :foreign
+        @f.should_not respond_to(:kfactor)
+        @f.should_not respond_to(:games)
       end
 
       it "unrated players just have nothing other than their number" do
-        @u.num.should     == 4
-        @u.rating.should  be_nil
-        @u.kfactor.should be_nil
-        @u.games.should   be_nil
-        @u.type.should    == :unrated
-        @u.full_rating?.should be_false
+        @u.num.should  == 4
+        @u.type.should == :unrated
+        @u.should_not respond_to(:rating)
+        @u.should_not respond_to(:kfactor)
+        @u.should_not respond_to(:games)
       end
 
       it "other combinations are invalid" do
@@ -53,13 +49,13 @@ module ICU
           { :games => 10, :kfactor => 10 },
           { :games => 10, :kfactor => 10, :rating  => 1000 },
           { :kfactor => 10 },
-        ].each { |opts| lambda { ICU::RatedPlayer.new(1, opts) }.should raise_error(/invalid.*combination/i) }
+        ].each { |opts| lambda { ICU::RatedPlayer.factory(1, opts) }.should raise_error(/invalid.*combination/i) }
       end
     end
 
     context "#new - miscellaneous" do
       it "attribute values can be given by strings, even when space padded" do
-        p = ICU::RatedPlayer.new(' 1 ', :kfactor => ' 10.0 ', :rating => ' 1000 ')
+        p = ICU::RatedPlayer.factory(' 1 ', :kfactor => ' 10.0 ', :rating => ' 1000 ')
         p.num.should     == 1
         p.kfactor.should == 10.0
         p.rating.should  == 1000
@@ -68,46 +64,46 @@ module ICU
 
     context "restrictions, or lack thereof, on attributes" do
       it "the player number can be zero or even negative" do
-        lambda { ICU::RatedPlayer.new(-1) }.should_not raise_error
-        lambda { ICU::RatedPlayer.new(0)  }.should_not raise_error
+        lambda { ICU::RatedPlayer.factory(-1) }.should_not raise_error
+        lambda { ICU::RatedPlayer.factory(0)  }.should_not raise_error
       end
 
       it "k-factors must be positive" do
-        lambda { ICU::RatedPlayer.new(1, :kfactor =>  0) }.should raise_error(/invalid.*factor/i)
-        lambda { ICU::RatedPlayer.new(1, :kfactor => -1) }.should raise_error(/invalid.*factor/i)
+        lambda { ICU::RatedPlayer.factory(1, :kfactor =>  0) }.should raise_error(/invalid.*factor/i)
+        lambda { ICU::RatedPlayer.factory(1, :kfactor => -1) }.should raise_error(/invalid.*factor/i)
       end
 
       it "the rating can be zero or even negative" do
-        lambda { ICU::RatedPlayer.new(1, :rating =>  0) }.should_not raise_error
-        lambda { ICU::RatedPlayer.new(1, :rating => -1) }.should_not raise_error
+        lambda { ICU::RatedPlayer.factory(1, :rating =>  0) }.should_not raise_error
+        lambda { ICU::RatedPlayer.factory(1, :rating => -1) }.should_not raise_error
       end
 
       it "ratings are stored as floats but can be specified with an integer" do
-        ICU::RatedPlayer.new(1, :rating => 1234.5).rating.should == 1234.5
-        ICU::RatedPlayer.new(1, :rating => 1234.0).rating.should == 1234
-        ICU::RatedPlayer.new(1, :rating =>   1234).rating.should == 1234
+        ICU::RatedPlayer.factory(1, :rating => 1234.5).rating.should == 1234.5
+        ICU::RatedPlayer.factory(1, :rating => 1234.0).rating.should == 1234
+        ICU::RatedPlayer.factory(1, :rating =>   1234).rating.should == 1234
       end
 
       it "the number of games shoud not exceed 20" do
-        lambda { ICU::RatedPlayer.new(1, :rating => 1000, :games => 19) }.should_not raise_error
-        lambda { ICU::RatedPlayer.new(1, :rating => 1000, :games => 20) }.should raise_error
-        lambda { ICU::RatedPlayer.new(1, :rating => 1000, :games => 21) }.should raise_error
+        lambda { ICU::RatedPlayer.factory(1, :rating => 1000, :games => 19) }.should_not raise_error
+        lambda { ICU::RatedPlayer.factory(1, :rating => 1000, :games => 20) }.should raise_error
+        lambda { ICU::RatedPlayer.factory(1, :rating => 1000, :games => 21) }.should raise_error
       end
 
       it "a description, such as a name, but can be any object, is optional" do
-        ICU::RatedPlayer.new(1, :desc => 'Fischer, Robert').desc.should == 'Fischer, Robert'
-        ICU::RatedPlayer.new(1, :desc => 1).desc.should be_an_instance_of(Fixnum)
-        ICU::RatedPlayer.new(1, :desc => 1.0).desc.should be_an_instance_of(Float)
-        ICU::RatedPlayer.new(1).desc.should be_nil
+        ICU::RatedPlayer.factory(1, :desc => 'Fischer, Robert').desc.should == 'Fischer, Robert'
+        ICU::RatedPlayer.factory(1, :desc => 1).desc.should be_an_instance_of(Fixnum)
+        ICU::RatedPlayer.factory(1, :desc => 1.0).desc.should be_an_instance_of(Float)
+        ICU::RatedPlayer.factory(1).desc.should be_nil
       end
     end
 
     context "results" do
       before(:each) do
         @p  = ICU::RatedPlayer.new(1, :kfactor => 10, :rating => 1000)
-        @r1 = ICU::RatedResult.new(1, ICU::RatedPlayer.new(2), 'W')
-        @r2 = ICU::RatedResult.new(2, ICU::RatedPlayer.new(3), 'L')
-        @r3 = ICU::RatedResult.new(3, ICU::RatedPlayer.new(4), 'D')
+        @r1 = ICU::RatedResult.new(1, ICU::RatedPlayer.factory(2), 'W')
+        @r2 = ICU::RatedResult.new(2, ICU::RatedPlayer.factory(3), 'L')
+        @r3 = ICU::RatedResult.new(3, ICU::RatedPlayer.factory(4), 'D')
       end
 
       it "should be returned in round order" do

@@ -343,7 +343,7 @@ module ICU
           unless num == 13
             p = @t.player(num)
             p.expected_score.should_not == 0.0
-            p.rating_change.should == 0.0
+            p.should_not respond_to(:rating_change)
             p.new_rating.should == p.rating
           end
         end
@@ -762,17 +762,17 @@ module ICU
 
       it "should agree with ICU rating database" do
         [
-          [1, 3.5, 3.84,  977, 1073,  0], # Austin
-          [2, 4.0, 3.51, 1068, 1042,  0], # Kevin
-          [3, 1.0, 1.05,  636,  636,  0], # Nikhil
-          [4, 0.0, 0.78,  520,  537,  0], # Sean
-          [5, 3.5, 1.74, 1026,  835, 45], # Michael
-          [6, 3.0, 3.54,  907, 1010,  0], # Eoin
+          [1, 3.5, 3.84,  977, 1073,   0], # Austin
+          [2, 4.0, 3.51, 1068, 1042,   0], # Kevin
+          [3, 1.0, 1.05,  636,  636, nil], # Nikhil
+          [4, 0.0, 0.78,  520,  537,   0], # Sean
+          [5, 3.5, 1.74, 1026,  835,  45], # Michael
+          [6, 3.0, 3.54,  907, 1010,   0], # Eoin
         ].each do |item|
           num, score, expected_score, performance, new_rating, bonus = item
           p = @t.player(num)
           p.score.should == score
-          p.bonus.should == bonus
+          p.bonus.should == bonus if bonus
           p.performance.should be_within(0.5).of(performance)
           p.expected_score.should be_within(0.01).of(expected_score)
           p.new_rating.should be_within(0.5).of(new_rating)
@@ -817,13 +817,13 @@ module ICU
 
         @m = [
           # MSAccess results taken from rerun of original which is different (reason unknown).
-          [1, 4.0, 4.28, 1052, 1052,  0], # Fanjini
-          [2, 3.5, 1.93,  920,  757, 35], # Guinan
-          [3, 3.5, 2.29,  932,  798, 18], # Duffy
-          [4, 1.0, 1.52,  588,  707,  0], # Cooke
-          [5, 1.0, 1.40,  828,  828,  0], # Callaghan
-          [6, 1.0, 0.91,  627,  627,  0], # Montenegro
-          [7, 0.0, 0.78,  460,  635,  0], # Lowry-O'Reilly
+          [1, 4.0, 4.28, 1052, 1052, nil], # Fanjini
+          [2, 3.5, 1.93,  920,  757,  35], # Guinan
+          [3, 3.5, 2.29,  932,  798,  18], # Duffy
+          [4, 1.0, 1.52,  588,  707,   0], # Cooke
+          [5, 1.0, 1.40,  828,  828, nil], # Callaghan
+          [6, 1.0, 0.91,  627,  627, nil], # Montenegro
+          [7, 0.0, 0.78,  460,  635,   0], # Lowry-O'Reilly
         ]
       end
 
@@ -832,7 +832,7 @@ module ICU
           num, score, expected_score, performance, new_rating, bonus = item
           p = @t.player(num)
           p.score.should == score
-          p.bonus.should == bonus
+          p.bonus.should == bonus if bonus
           p.performance.should be_within(num == 2 ? 0.6 : 0.5).of(performance)
           p.expected_score.should be_within(0.01).of(expected_score)
           p.new_rating.should be_within(0.5).of(new_rating)
@@ -845,7 +845,7 @@ module ICU
           num, score, expected_score, performance, new_rating, bonus = item
           p = @t.player(num)
           p.score.should == score
-          p.bonus.should == bonus
+          p.bonus.should == bonus if bonus
           p.performance.should be_within(num == 2 ? 0.6 : 0.5).of(performance)
           p.expected_score.should be_within(0.01).of(expected_score)
           p.new_rating.should be_within(0.5).of(new_rating)
@@ -859,7 +859,7 @@ module ICU
           num, score, expected_score, performance, new_rating, bonus = item
           p = @t.player(num)
           p.score.should == score
-          p.bonus.should == 0
+          p.bonus.should == 0 if bonus
           p.performance.should_not be_within(1.0).of(performance)
           p.expected_score.should_not be_within(0.01).of(expected_score)
           p.new_rating.should_not be_within(1.0).of(new_rating)
@@ -986,7 +986,7 @@ module ICU
       end
 
       it "should behave like ratings.ciu.ie" do
-        @p1.send("kfactor=", 32)
+        @p1.instance_eval { @kfactor = 32 }
         @t.rate!
         @p1.new_rating.should be_within(0.5).of(1603)
         @p1.expected_score.should be_within(0.001).of(2.868)
@@ -1230,7 +1230,7 @@ module ICU
         @o5.new_rating.should == @o5.performance
         @o6.new_rating.should == @o6.performance
 
-        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.type == :rated ? o.rating : o.new_rating }
+        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.new_rating(:opponent) }
 
         average_of_ratings = ratings.inject(0.0){ |m,r| m = m + r } / 6.0
         average_of_ratings.should_not be_within(0.5).of(@p.new_rating)
@@ -1251,7 +1251,7 @@ module ICU
         @o5.new_rating.should == @o5.performance
         @o6.new_rating.should == @o6.performance
 
-        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.type == :rated ? o.rating : o.new_rating }
+        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.new_rating(:opponent) }
 
         average_of_ratings = ratings.inject(0.0){ |m,r| m = m + r } / 6.0
         average_of_ratings.should be_within(0.5).of(@p.new_rating)
@@ -2079,12 +2079,12 @@ module ICU
       end
     end
 
-    context "#rate - Dierdre Turner in the Limerick U1400 2012" do
+    context "#rate - Deirdre Turner in the Limerick U1400 2012" do
       before(:each) do
         @t = ICU::RatedTournament.new(desc: "Limerick U1400 2012")
 
-        # Add the players of most interest (Dierdre Turner and her opponents).
-        @p  = @t.add_player(6697, desc: "Dierdre Turner")
+        # Add the players of most interest (Deirdre Turner and her opponents).
+        @p  = @t.add_player(6697, desc: "Deirdre Turner")
         @o1 = @t.add_player(6678, desc: "John P. Dunne",      rating:  980, kfactor: 40)
         @o2 = @t.add_player(6694, desc: "Jordan O'Sullivan")
         @o3 = @t.add_player(6681, desc: "Ruairi Freeman",     rating:  537, kfactor: 40)
@@ -2111,7 +2111,7 @@ module ICU
         @t.add_player(6696, desc: "Mark David Tonita")
         @t.add_player(6698, desc: "Eoghan Turner")
 
-        # Dierdre's results.
+        # Deirdre's results.
         @t.add_result(1, 6697, 6678, "L")
         @t.add_result(2, 6697, 6694, "W")
         @t.add_result(3, 6697, 6681, "W")
@@ -2183,7 +2183,7 @@ module ICU
       end
 
       it "should be setup properly" do
-        @p.desc.should  == "Dierdre Turner"
+        @p.desc.should  == "Deirdre Turner"
         @o1.desc.should == "John P. Dunne"
         @o2.desc.should == "Jordan O'Sullivan"
         @o3.desc.should == "Ruairi Freeman"
@@ -2200,7 +2200,7 @@ module ICU
         @o6.type.should == :provisional
 
         @o1.rating.should == 980
-        @o2.rating.should be_nil
+        @o2.should_not respond_to(:rating)
         @o3.rating.should == 537
         @o4.rating.should == 682
         @o5.rating.should == 1320
@@ -2216,16 +2216,14 @@ module ICU
         @p.new_rating.should == @p.performance
 
         @o1.bonus.should == 23
-        @o2.bonus.should == 0
         @o3.bonus.should == 0
         @o4.bonus.should == 0
         @o5.bonus.should == 0
-        @o6.bonus.should == 0
 
-        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus > 0 || o.type != :rated ? o.new_rating : o.rating }
+        ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.new_rating(:opponent) }
 
         performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0
-        performance.should be_within(0.5).of(@p.new_rating)
+        performance.should be_within(0.1).of(@p.new_rating)
 
         @t.iterations1.should be > 1
         @t.iterations2.should be > 1

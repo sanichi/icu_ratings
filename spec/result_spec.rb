@@ -5,20 +5,20 @@ module ICU
   describe RatedResult do
     context "a basic rated result" do
       before(:all) do
-        @o = ICU::RatedPlayer.new(2)
+        @o = ICU::RatedPlayer.factory(2)
       end
 
       it "needs a round, opponent and score (win, loss or draw)" do
         r = ICU::RatedResult.new(1, @o, 'W')
         r.round.should == 1
-        r.opponent.should be_an_instance_of(ICU::RatedPlayer)
+        r.opponent.should be_a_kind_of(ICU::RatedPlayer)
         r.score.should == 1.0
       end
     end
 
     context "restrictions, or lack thereof, on attributes" do
       before(:each) do
-        @p = ICU::RatedPlayer.new(2)
+        @p = ICU::RatedPlayer.factory(2)
       end
 
       it "round numbers must be positive" do
@@ -41,7 +41,7 @@ module ICU
 
     context "#opponents_score" do
       before(:each) do
-        @p = ICU::RatedPlayer.new(2)
+        @p = ICU::RatedPlayer.factory(2)
       end
 
       it "should give the score from the opponent's perspective" do
@@ -53,8 +53,8 @@ module ICU
 
     context "equality" do
       before(:each) do
-        @p1 = ICU::RatedPlayer.new(1)
-        @p2 = ICU::RatedPlayer.new(2)
+        @p1 = ICU::RatedPlayer.factory(1)
+        @p2 = ICU::RatedPlayer.factory(2)
         @r1 = ICU::RatedResult.new(1, @p1, 'W')
         @r2 = ICU::RatedResult.new(1, @p1, 'W')
         @r3 = ICU::RatedResult.new(2, @p1, 'W')

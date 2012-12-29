@@ -117,8 +117,8 @@ module ICU
   # There is one other optional parameter, _desc_ (short for "description"). It has no effect on player
   # type or rating calculations and it cannot be used to retrieve players from a tournament (only the
   # player number can be used for that). Its only use is to attach additional arbitary data to players.
-  # Any object can be used and descriptions don't have to be unique. The attribute's typical use,
-  # if it's used at all, is expected to be for player names in the form of String values.
+  # Any object can be used and descriptions don't have to be unique. The attribute's typical use, if
+  # it's used at all, is expected to be for player names and/or ID numbers, in the form of String values.
   #
   #   t.add_player(8, :rating => 2800, :desc => 'Gary Kasparov (4100018)')
   #   t.player(8).desc    # "Gary Kasparov (4100018)"
@@ -128,24 +128,24 @@ module ICU
   # After the <em>rate!</em> method has been called on the ICU::RatedTournament object, the results
   # of the rating calculations are available via various methods of the player objects:
   #
-  # _new_rating_::     This is the player's new rating. For rated players it is their old rating
-  #                    plus their _rating_change_ plus their _bonus_ (if any). For provisional players
-  #                    it is their performance rating including their previous games. For unrated
-  #                    players it is their tournament performance rating. New ratings are not
-  #                    calculated for foreign players so this method just returns their start _rating_.
-  # _rating_change_::  This is calculated from a rated player's old rating, their K-factor and the sum
-  #                    of expected scores in each game. The same as the difference between the old and
-  #                    new ratings (unless there is a bonus). Zero for all other types of players.
-  # _performance_::    This returns the tournament rating performance for rated, unrated and
-  #                    foreign players. For provisional players it returns a weighted average
-  #                    of the player's tournament performance and their previous games. For
-  #                    provisional and unrated players it is the same as _new_rating_.
-  # _expected_score_:: This returns the sum of expected scores over all results for all player types.
-  #                    For rated players, this number times the K-factor gives their rating change.
-  #                    It is calculated for provisional, unrated and foreign players but not actually
-  #                    used to estimate new ratings (for provisional and unrated players performance
-  #                    estimates are used instead).
-  # _bonus_::          The bonus received by a rated player (usually zero). Nil for other player types.
+  # _new_rating_::      This is the player's new rating. For rated players it is their old rating
+  #                     plus their _rating_change_ plus their _bonus_ (if any). For provisional players
+  #                     it is their performance rating including their previous games. For unrated
+  #                     players it is their tournament performance rating. New ratings are not
+  #                     calculated for foreign players so this method just returns their start _rating_.
+  # _rating_change_::   This is calculated from a rated player's old rating, their K-factor and the sum
+  #                     of expected scores in each game. The same as the difference between the old and
+  #                     new ratings (unless there is a bonus). Not available for other player types.
+  # _performance_::     This returns the tournament rating performance for rated, unrated and
+  #                     foreign players. For provisional players it returns a weighted average
+  #                     of the player's tournament performance and their previous games. For
+  #                     provisional and unrated players it is the same as _new_rating_.
+  # _expected_score_::  This returns the sum of expected scores over all results for all player types.
+  #                     For rated players, this number times the K-factor gives their rating change.
+  #                     It is calculated for provisional, unrated and foreign players but not actually
+  #                     used to estimate new ratings (for provisional and unrated players performance
+  #                     estimates are used instead).
+  # _bonus_::           The bonus received by a rated player (usually zero). Not available for other player types.
   #
   # == Unrateable Players
   #
@@ -155,53 +155,49 @@ module ICU
   # method.
   #
   class RatedPlayer
-    attr_reader :num, :rating, :kfactor, :games, :bonus
+    attr_reader :num, :type, :performance, :results
     attr_accessor :desc
 
-    # After the tournament has been rated, this is the player's new rating.
-    def new_rating
-      full_rating? ? @rating + rating_change + @bonus : performance
+    def self.factory(num, args={}) # :nodoc:
+      num     = check_num(num)
+      rating  = check_rating(args[:rating])
+      kfactor = check_kfactor(args[:kfactor])
+      games   = check_games(args[:games])
+      desc    = args[:desc]
+      case
+        when  rating &&  kfactor && !games then FullRating.new(num, desc, rating, kfactor)
+        when  rating && !kfactor &&  games then ProvRating.new(num, desc, rating, games)
+        when  rating && !kfactor && !games then FrgnRating.new(num, desc, rating)
+        when !rating && !kfactor && !games then NoneRating.new(num, desc)
+        else  raise "invalid combination of player attributes"
+      end
     end
 
-    # After the tournament has been rated, this is the difference between the old and new ratings for
-    # rated players, based on sum of expected scores in each games and the player's K-factor.
-    # Zero for all other types of players.
-    def rating_change
-      @results.inject(0.0) { |c, r| c + (r.rating_change || 0.0) }
+    def self.check_num(arg) # :nodoc:
+      num = arg.to_i
+      raise "invalid player num (#{arg})" if num == 0 && !arg.to_s.match(/^\s*\d/)
+      num
     end
 
-    # After the tournament has been rated, this returns the sum of expected scores over all results.
-    def expected_score
-      @results.inject(0.0) { |e, r| e + (r.expected_score || 0.0) }
+    def self.check_rating(arg) # :nodoc:
+      return unless arg
+      rating = arg.to_f
+      raise "invalid player rating (#{arg})" if rating == 0.0 && !arg.to_s.match(/^\s*\d/)
+      rating
     end
 
-    # After the tournament has been rated, this returns the tournament rating performance for
-    # rated, unrated and foreign players. Returns zero for rated players.
-    def performance
-      @performance
+    def self.check_kfactor(arg) # :nodoc:
+      return unless arg
+      kfactor = arg.to_f
+      raise "invalid player k-factor (#{arg})" if kfactor <= 0.0
+      kfactor
     end
 
-    # Returns an array of the player's results (ICU::RatedResult) in round order.
-    def results
-      @results
-    end
-
-    # The sum of the player's scores in all rounds in which they have a result.
-    def score
-      @results.inject(0.0) { |e, r| e + r.score }
-    end
-
-    # Returns the type of player as a symbol: one of _rated_, _provisional_, _unrated_ or _foreign_.
-    def type
-      @type
-    end
-
-    def full_rating? # :nodoc:
-      @type == :rated || @type == :foreign
-    end
-
-    def bonus_rating # :nodoc:
-      @bonus_rating || @rating
+    def self.check_games(arg) # :nodoc:
+      return unless arg
+      games = arg.to_i
+      raise "invalid number of games (#{arg})" if games <= 0 || games >= 20
+      games
     end
 
     # Calculate a K-factor according to ICU rules.
@@ -219,6 +215,117 @@ module ICU
       end
     end
 
+    def reset # :nodoc:
+      @performance = nil
+      @estimated_performance = nil
+    end
+
+    class FullRating < RatedPlayer # :nodoc:
+      attr_reader :rating, :kfactor, :bonus
+
+      def initialize(num, desc, rating, kfactor)
+        @type = :rated
+        @rating = rating
+        @kfactor = kfactor
+        @bonus = 0
+        super(num, desc)
+      end
+
+      def reset
+        @bonus_rating = nil
+        @bonus = 0
+        super
+      end
+
+      def rating_change
+        @results.inject(0.0) { |c, r| c + (r.rating_change || 0.0) }
+      end
+
+      def new_rating(type=nil)
+        case type
+        when :start
+          @rating                          # the player's start rating
+        when :opponent
+          @bonus_rating || @rating         # the rating used for opponents during the calculations
+        else
+          @rating + rating_change + @bonus # the player's final rating
+        end
+      end
+
+      def calculate_bonus
+        return if @kfactor <= 24 || @results.size <= 4 || @rating >= 2100
+        change = rating_change
+        return if change <= 35 || @rating + change >= 2100
+        threshold = 32 + 3 * (@results.size - 4)
+        bonus = (change - threshold).round
+        return if bonus <= 0
+        bonus = (1.25 * bonus).round if kfactor >= 40
+        [2100, @performance].each { |max| bonus = max - @rating if bonus + @rating > max }
+        return if bonus <= 0
+        bonus = bonus.round
+        @bonus_rating = @rating + change + bonus
+        @bonus = bonus
+      end
+
+      def update_bonus
+        @bonus_rating = @rating + @bonus + rating_change if @bonus_rating
+      end
+    end
+
+    class ProvRating < RatedPlayer # :nodoc:
+      attr_reader :rating, :games
+
+      def initialize(num, desc, rating, games)
+        @type = :provisional
+        @rating = rating
+        @games = games
+        super(num, desc)
+      end
+
+      def new_rating(type=nil)
+        performance
+      end
+
+      def average_performance(new_performance, new_games)
+        old_performance = games * rating
+        old_games       = games
+        (new_performance + old_performance) / (new_games + old_games)
+      end
+    end
+
+    class NoneRating < RatedPlayer # :nodoc:
+      def initialize(num, desc)
+        @type = :unrated
+        super(num, desc)
+      end
+
+      def new_rating(type=nil)
+        performance
+      end
+    end
+
+    class FrgnRating < RatedPlayer # :nodoc:
+      attr_reader :rating
+
+      def initialize(num, desc, rating)
+        @type = :foreign
+        @rating = rating
+        super(num, desc)
+      end
+
+      def new_rating(type=nil)
+        rating
+      end
+    end
+
+    def expected_score
+      @results.inject(0.0) { |e, r| e + (r.expected_score || 0.0) }
+    end
+
+    def score
+      @results.inject(0.0) { |e, r| e + r.score }
+    end
+
     def add_result(result) # :nodoc:
       raise "invalid result (#{result.class})" unless result.is_a? ICU::RatedResult
       raise "players cannot score results against themselves" if self == result.opponent
@@ -234,31 +341,25 @@ module ICU
       @results.sort!{ |a,b| a.round <=> b.round }
     end
 
-    def init # :nodoc:
-      @performance = nil
-      @estimated_performance = nil
-      @bonus_rating = nil
-      @bonus = 0
-    end
-
     def rate!(update_bonus=false) # :nodoc:
       @results.each { |r| r.rate!(self) }
-      @bonus_rating = @rating + @bonus + rating_change if update_bonus && @bonus_rating
+      self.update_bonus if update_bonus && respond_to?(:update_bonus)
     end
 
     def estimate_performance # :nodoc:
-      new_games, new_performance = results.inject([0,0.0]) do |sum, result|
-        opponent = result.opponent
-        if opponent.full_rating? || opponent.performance
+      games, performance = results.inject([0,0.0]) do |sum, result|
+        rating = result.opponent.new_rating(:opponent)
+        if rating
           sum[0]+= 1
-          sum[1]+= (opponent.full_rating? ? opponent.bonus_rating : opponent.performance) + (2 * result.score - 1) * 400.0
+          sum[1]+= rating + (2 * result.score - 1) * 400.0
         end
         sum
       end
-      if new_games > 0
-        old_games, old_performance = type == :provisional ? [games, games * rating] : [0, 0.0]
-        @estimated_performance = (new_performance + old_performance) / (new_games + old_games)
-      end
+      @estimated_performance = average_performance(performance, games) if games > 0
+    end
+
+    def average_performance(performance, games) # :nodoc:
+      performance / games
     end
 
     def update_performance(thresh) # :nodoc:
@@ -274,22 +375,6 @@ module ICU
       stable
     end
 
-    def calculate_bonus # :nodoc:
-      # Rounding is performed in places to emulate the older MSAccess implementation.
-      return if @type != :rated || @kfactor <= 24 || @results.size <= 4 || @rating >= 2100
-      change = rating_change
-      return if change <= 35 || @rating + change >= 2100
-      threshold = 32 + 3 * (@results.size - 4)
-      bonus = (change - threshold).round
-      return if bonus <= 0
-      bonus = (1.25 * bonus).round if kfactor >= 40
-      [2100, @performance].each { |max| bonus = max - @rating if bonus + @rating > max }
-      return if bonus <= 0
-      bonus = bonus.round
-      @bonus_rating = @rating + change + bonus
-      @bonus = bonus
-    end
-
     def ==(other) # :nodoc:
       return false unless other.is_a? ICU::RatedPlayer
       num == other.num
@@ -297,42 +382,10 @@ module ICU
 
     private
 
-    def initialize(num, opt={}) # :nodoc:
-      self.num = num
-      [:rating, :kfactor, :games, :desc].each { |atr| self.send("#{atr}=", opt[atr]) unless opt[atr].nil? }
+    def initialize(num, desc) # :nodoc:
+      @num     = num
+      @desc    = desc
       @results = []
-      @type = deduce_type
-      @bonus = 0
-    end
-
-    def num=(num)
-      @num = num.to_i
-      raise "invalid player num (#{num})" if @num == 0 && !num.to_s.match(/^\s*\d/)
-    end
-
-    def rating=(rating)
-      @rating = rating.to_f
-      raise "invalid player rating (#{rating})" if @rating == 0.0 && !rating.to_s.match(/^\s*\d/)
-    end
-
-    def kfactor=(kfactor)
-      @kfactor = kfactor.to_f
-      raise "invalid player k-factor (#{kfactor})" if @kfactor <= 0.0
-    end
-
-    def games=(games)
-      @games = games.to_i
-      raise "invalid number of games (#{games})" if @games <= 0 || @games >= 20
-    end
-
-    def deduce_type
-      case
-        when  @rating &&  @kfactor && !@games then :rated
-        when  @rating && !@kfactor &&  @games then :provisional
-        when  @rating && !@kfactor && !@games then :foreign
-        when !@rating && !@kfactor && !@games then :unrated
-        else  raise "invalid combination of player attributes"
-      end
     end
   end
 end

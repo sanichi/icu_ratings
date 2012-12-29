@@ -86,7 +86,7 @@ module ICU
     def add_player(num, args={})
       raise "player with number #{num} already exists" if @player[num]
       args[:kfactor] = ICU::RatedPlayer.kfactor(args[:kfactor].merge({ :start => start, :rating => args[:rating] })) if args[:kfactor].is_a?(Hash)
-      @player[num] = ICU::RatedPlayer.new(num, args)
+      @player[num] = ICU::RatedPlayer.factory(num, args)
     end
 
     # Add a new result to the tournament. Two instances of ICU::RatedResult are
@@ -126,7 +126,7 @@ module ICU
       end
 
       # Phase 1.
-      players.each { |p| p.init }
+      players.each { |p| p.reset }
       @iterations1 = performance_ratings(max_iterations[0], threshold)
       players.each { |p| p.rate! }
 
@@ -182,7 +182,7 @@ module ICU
 
     # Calculate bonuses for all players and return the number who got one.
     def calculate_bonuses
-      @player.values.inject(0) { |t,p| t + (p.calculate_bonus ? 1 : 0) }
+      @player.values.select{ |p| p.respond_to?(:bonus) }.inject(0) { |t,p| t + (p.calculate_bonus ? 1 : 0) }
     end
   end
 end

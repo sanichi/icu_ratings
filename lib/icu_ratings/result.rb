@@ -87,32 +87,17 @@ module ICU
   #
   # The main rating calculations are available from player methods (see ICU::RatedPlayer)
   # but additional details are available via methods of each player's individual results:
-  # _expected_score_, _rating_change_.
+  # _expected_score_, _rating_change_ (rated players only).
   #
   class RatedResult
-    attr_reader :round, :opponent, :score
-
-    # After the tournament has been rated, this returns the expected score (between 0 and 1)
-    # for the player based on the rating difference with the opponent scaled by 400.
-    # The standard Elo formula is used: 1/(1 + 10^(diff/400)).
-    def expected_score
-      @expected_score
-    end
-
-    # After the tournament has been rated, returns the change in rating due to this particular
-    # result. Only for rated players (returns _nil_ for other types of players). Computed from
-    # the difference between actual and expected scores multiplied by the player's K-factor.
-    # The sum of these changes is the overall rating change for rated players.
-    def rating_change
-      @rating_change
-    end
+    attr_reader :round, :opponent, :score, :expected_score, :rating_change
 
     def rate!(player) # :nodoc:
-      player_rating   = player.full_rating?   ? player.rating         : player.performance
-      opponent_rating = opponent.full_rating? ? opponent.bonus_rating : opponent.performance
+      player_rating   = player.new_rating(:start)
+      opponent_rating = opponent.new_rating(:opponent)
       if player_rating && opponent_rating
         @expected_score = 1 / (1 + 10 ** ((opponent_rating - player_rating) / 400.0))
-        @rating_change  = (@score - @expected_score) * player.kfactor if player.type == :rated
+        @rating_change  = (score - expected_score) * player.kfactor if player.type == :rated
       end
     end
 
