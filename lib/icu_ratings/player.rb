@@ -262,16 +262,19 @@ module ICU
       def calculate_bonus
         return if @kfactor <= 24 || @results.size <= 4 || @rating >= 2100
         change = rating_change
+        # Remember the key inputs to the calculation
         @pb_rating = (@rating + change).round
         @pb_performance = @performance.round
+        # Calculate the bonus.
         return if change <= 35 || @rating + change >= 2100
         threshold = 32 + 3 * (@results.size - 4)
         bonus = (change - threshold).round
         return if bonus <= 0
         bonus = (1.25 * bonus).round if kfactor >= 40
-        [2100, @performance].each { |max| bonus = max - @rating if bonus + @rating > max }
+        # Determine if it should be capped or not.
+        [2100, @performance].each { |max| bonus = (max - @rating - change).round if @rating + change + bonus >= max }
         return if bonus <= 0
-        bonus = bonus.round
+        # Store the value.
         @bonus_rating = @rating + change + bonus
         @bonus = bonus
       end

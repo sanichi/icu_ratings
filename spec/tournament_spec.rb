@@ -744,7 +744,7 @@ module ICU
           end
         end
       end
-      
+
       it "players eligible for a bonus should have pre-bonus data" do
         p = @t.player(1)
         p.pb_rating.should be_kind_of Fixnum
@@ -2254,6 +2254,195 @@ module ICU
 
         @t.iterations1.should be > 1
         @t.iterations2.should be > 1
+      end
+    end
+
+    context "#rate - Kieran O'Riordan in the Mulcahy Cup 2012" do
+      before(:each) do
+        @t = ICU::RatedTournament.new(desc: "Mulcahy Cup 2012")
+
+        # Add the players of most interest (Kieran and his opponents).
+        @p  = @t.add_player(3976, desc: "Kieran O'Riordan", rating: 1883, kfactor: 40)
+        @o1 = @t.add_player(3966, desc: "Jonathan Kiely",   rating: 1113, kfactor: 24)
+        @o2 = @t.add_player(3973, desc: "Donal O'Hallahan", rating: 1465, kfactor: 24)
+        @o3 = @t.add_player(3952, desc: "Arnaud, Aoustin",  rating: 1984, kfactor: 32)
+        @o4 = @t.add_player(3968, desc: "Ronan Magee",      rating: 1957, kfactor: 40)
+        @o5 = @t.add_player(3961, desc: "Barry Foran",      rating: 1417, kfactor: 24)
+        @o6 = @t.add_player(3958, desc: "Henk De Jonge",    rating: 1977, kfactor: 32)
+
+        # Add all the other players.
+        @t.add_player(3953, desc: "Joe Browne",              rating:  900, kfactor: 24)
+        @t.add_player(3954, desc: "Daniel Cashin",           rating: 1393, kfactor: 40)
+        @t.add_player(3955, desc: "Anne B Coughlan",         rating: 1224, kfactor: 24)
+        @t.add_player(3956, desc: "Maurice J Coveney",       rating: 1270, kfactor: 24)
+        @t.add_player(3957, desc: "Tony Dalton",             rating: 1068, kfactor: 24)
+        @t.add_player(3959, desc: "Desmond Doran",           rating:  737, kfactor: 40)
+        @t.add_player(3960, desc: "Peter Doyle",             rating: 1010, kfactor: 32)
+        @t.add_player(3962, desc: "Jonathan Grimmer")
+        @t.add_player(3963, desc: "Len Hackett",             rating: 1569, kfactor: 24)
+        @t.add_player(3964, desc: "Jim Harkin",              rating: 1366, kfactor: 32)
+        @t.add_player(3965, desc: "Tom Healy",               rating: 1852, kfactor: 24)
+        @t.add_player(3967, desc: "Paul C Kiely",            rating: 1815, kfactor: 24)
+        @t.add_player(3969, desc: "Adrian McAuliffe",        rating: 1171, games:   19)
+        @t.add_player(3970, desc: "D. Gerry McCarthy",       rating: 1754, kfactor: 24)
+        @t.add_player(3971, desc: "Tom McGrath",             rating:  982, kfactor: 40)
+        @t.add_player(3972, desc: "Niki Mullins",            rating: 1443, kfactor: 24)
+        @t.add_player(3974, desc: "Mark O'Hallahan",         rating: 1115, kfactor: 40)
+        @t.add_player(3975, desc: "David O'Kelly",           rating: 1487, kfactor: 24)
+        @t.add_player(3977, desc: "Pat O'Riordan",           rating:  875, kfactor: 32)
+        @t.add_player(3978, desc: "Marco Piazza",            rating: 1511, games:    6)
+        @t.add_player(3979, desc: "Krzysztof Przestrzelski", rating:  942, kfactor: 40)
+        @t.add_player(3980, desc: "Oliver Roberts",          rating:  743, kfactor: 40)
+        @t.add_player(3981, desc: "Stephen Short",           rating: 1891, kfactor: 24)
+        @t.add_player(3982, desc: "Bernd Thee",              rating: 1760, kfactor: 24)
+        @t.add_player(3983, desc: "Pat Twomey",              rating: 1728, kfactor: 24)
+
+        # Kieran's results.
+        @t.add_result(1, 3976, 3966, "W")
+        @t.add_result(2, 3976, 3973, "W")
+        @t.add_result(3, 3976, 3952, "D")
+        @t.add_result(4, 3976, 3968, "W")
+        @t.add_result(5, 3976, 3961, "W")
+        @t.add_result(6, 3976, 3958, "D")
+
+        # Other results.
+        @t.add_result(1, 3979, 3970, "L")
+        @t.add_result(1, 3972, 3952, "L")
+        @t.add_result(1, 3980, 3975, "L")
+        @t.add_result(1, 3983, 3971, "D")
+        @t.add_result(1, 3968, 3964, "W")
+        @t.add_result(1, 3973, 3959, "W")
+        @t.add_result(1, 3961, 3958, "L")
+        @t.add_result(1, 3962, 3956, "W")
+        @t.add_result(1, 3969, 3967, "L")
+        @t.add_result(1, 3981, 3955, "W")
+        @t.add_result(1, 3963, 3953, "W")
+        @t.add_result(1, 3974, 3965, "W")
+        @t.add_result(1, 3978, 3977, "W")
+        @t.add_result(1, 3982, 3957, "W")
+        @t.add_result(2, 3979, 3954, "L")
+        @t.add_result(2, 3957, 3956, "L")
+        @t.add_result(2, 3967, 3960, "W")
+        @t.add_result(2, 3972, 3966, "W")
+        @t.add_result(2, 3980, 3955, "L")
+        @t.add_result(2, 3983, 3974, "W")
+        @t.add_result(2, 3968, 3963, "W")
+        @t.add_result(2, 3969, 3961, "L")
+        @t.add_result(2, 3981, 3975, "D")
+        @t.add_result(2, 3964, 3953, "W")
+        @t.add_result(2, 3970, 3952, "L")
+        @t.add_result(2, 3978, 3962, "W")
+        @t.add_result(2, 3971, 3965, "L")
+        @t.add_result(2, 3982, 3958, "L")
+        @t.add_result(3, 3971, 3956, "D")
+        @t.add_result(3, 3982, 3964, "W")
+        @t.add_result(3, 3979, 3966, "L")
+        @t.add_result(3, 3972, 3959, "W")
+        @t.add_result(3, 3980, 3957, "W")
+        @t.add_result(3, 3983, 3975, "D")
+        @t.add_result(3, 3968, 3967, "D")
+        @t.add_result(3, 3973, 3955, "W")
+        @t.add_result(3, 3977, 3963, "L")
+        @t.add_result(3, 3969, 3953, "W")
+        @t.add_result(3, 3981, 3962, "D")
+        @t.add_result(3, 3974, 3961, "L")
+        @t.add_result(3, 3970, 3960, "W")
+        @t.add_result(3, 3965, 3954, "W")
+        @t.add_result(3, 3978, 3958, "L")
+        @t.add_result(4, 3956, 3954, "L")
+        @t.add_result(4, 3966, 3962, "L")
+        @t.add_result(4, 3971, 3969, "W")
+        @t.add_result(4, 3982, 3975, "D")
+        @t.add_result(4, 3957, 3953, "L")
+        @t.add_result(4, 3958, 3952, "L")
+        @t.add_result(4, 3980, 3979, "W")
+        @t.add_result(4, 3983, 3972, "W")
+        @t.add_result(4, 3973, 3970, "D")
+        @t.add_result(4, 3977, 3955, "D")
+        @t.add_result(4, 3963, 3961, "L")
+        @t.add_result(4, 3981, 3967, "L")
+        @t.add_result(4, 3964, 3960, "W")
+        @t.add_result(4, 3974, 3959, "W")
+        @t.add_result(4, 3978, 3965, "W")
+        @t.add_result(5, 3975, 3970, "L")
+        @t.add_result(5, 3956, 3955, "L")
+        @t.add_result(5, 3966, 3953, "W")
+        @t.add_result(5, 3982, 3978, "W")
+        @t.add_result(5, 3967, 3952, "L")
+        @t.add_result(5, 3960, 3959, "W")
+        @t.add_result(5, 3983, 3958, "L")
+        @t.add_result(5, 3973, 3962, "L")
+        @t.add_result(5, 3977, 3969, "L")
+        @t.add_result(5, 3981, 3954, "W")
+        @t.add_result(5, 3974, 3963, "L")
+        @t.add_result(5, 3965, 3964, "W")
+        @t.add_result(6, 3975, 3955, "W")
+        @t.add_result(6, 3966, 3960, "D")
+        @t.add_result(6, 3971, 3963, "L")
+        @t.add_result(6, 3979, 3953, "L")
+        @t.add_result(6, 3982, 3967, "D")
+        @t.add_result(6, 3959, 3957, "L")
+        @t.add_result(6, 3962, 3952, "D")
+        @t.add_result(6, 3983, 3961, "W")
+        @t.add_result(6, 3973, 3972, "W")
+        @t.add_result(6, 3969, 3964, "L")
+        @t.add_result(6, 3977, 3956, "L")
+        @t.add_result(6, 3981, 3978, "W")
+        @t.add_result(6, 3970, 3965, "L")
+        @t.add_result(6, 3974, 3954, "L")
+      end
+
+      it "should be setup properly" do
+        @p.desc.should  == "Kieran O'Riordan"
+        @o1.desc.should == "Jonathan Kiely"
+        @o2.desc.should == "Donal O'Hallahan"
+        @o3.desc.should == "Arnaud, Aoustin"
+        @o4.desc.should == "Ronan Magee"
+        @o5.desc.should == "Barry Foran"
+        @o6.desc.should == "Henk De Jonge"
+
+        @p.type.should  == :rated
+        @o1.type.should == :rated
+        @o2.type.should == :rated
+        @o3.type.should == :rated
+        @o4.type.should == :rated
+        @o5.type.should == :rated
+        @o6.type.should == :rated
+
+        @p.rating.should  == 1883
+        @o1.rating.should == 1113
+        @o2.rating.should == 1465
+        @o3.rating.should == 1984
+        @o4.rating.should == 1957
+        @o5.rating.should == 1417
+        @o6.rating.should == 1977
+
+        @t.iterations1.should be_nil
+        @t.iterations2.should be_nil
+      end
+
+      it "player should not get a bonus because his pre-bonus performance is lower than his post-bonus rating" do
+        @t.rate!(version: 2)
+
+        @p.new_rating.should be_within(0.5).of(1924)
+
+        @p.bonus.should  == 0
+        @o1.bonus.should == 0
+        @o2.bonus.should == 0
+        @o3.bonus.should == 0
+        @o4.bonus.should == 0
+        @o5.bonus.should == 0
+        @o6.bonus.should == 0
+
+        threshold = @p.rating + 32 + 3 * (@p.results.size - 4)
+
+        # He would have got a bonus ...
+        pre_cap_bonus = ((@p.pb_rating - threshold).round * 1.25).round
+        pre_cap_bonus.should be > 0
+
+        # ... if it wasn't for his low performance.
+        post_cap_bonus = @p.pb_performance - @p.pb_rating
+        post_cap_bonus.should be < 0
       end
     end
   end
