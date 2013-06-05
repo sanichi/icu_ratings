@@ -14,7 +14,7 @@ with only a provisional rating or without any prior rating) which is different t
 
   sudo gem install icu_ratings
 
-Tested with ruby 1.9.2. Version 1.0.5 of this gem was the last to support ruby 1.8.7.
+Tested on Ruby 1.9.2, 1.9.3 and 2.0.0. Version 1.0.5 was the last to support Ruby 1.8.7.
 
 == Usage
 
