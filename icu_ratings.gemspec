@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.summary = %q{For rating chess tournaments.}
   s.version = ICU::Ratings::VERSION
   s.rubyforge_project = "icu_ratings"
+  s.license = "MIT"
 
   s.extra_rdoc_files = %w(LICENCE README.rdoc)
   s.files = Dir.glob("lib/**/*.rb") + Dir.glob("spec/*.rb") + %w(LICENCE README.rdoc)
