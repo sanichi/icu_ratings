@@ -124,6 +124,10 @@ module ICU
         update_bonuses  = true
         threshold       = 0.1
       end
+      if version >= 3
+        # See http://ratings.icu.ie/articles/18 (Part 3)
+        max_iterations = [50, 50]
+      end
 
       # Phase 1.
       players.each { |p| p.reset }
