@@ -211,9 +211,9 @@ module ICU
       case
       when args[:rating] >= 2100 then
         16
-      when ICU::Util.age(args[:dob], args[:start]) < 21 then
+      when ICU::Util::Date.age(args[:dob], args[:start]) < 21 then
         40
-      when ICU::Util.age(args[:joined], args[:start]) < 8 then
+      when ICU::Util::Date.age(args[:joined], args[:start]) < 8 then
         32
       else
         24

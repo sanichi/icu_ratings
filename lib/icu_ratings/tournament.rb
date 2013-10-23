@@ -156,7 +156,7 @@ module ICU
 
     # Set the start date. Raises exception on error.
     def start=(date)
-      @start = ICU::Util.parsedate!(date)
+      @start = ICU::Util::Date.parsedate!(date)
     end
 
     # Set whether there are no bonuses (false by default).
