@@ -5,25 +5,25 @@ module ICU
   describe RatedTournament do
     context "restrictions, or lack thereof, on attributes" do
       it "a tournament can have an optional description, such as a name, but any object is allowed" do
-        ICU::RatedTournament.new(:desc => 'Irish Championship 2010').desc.should == 'Irish Championship 2010'
-        ICU::RatedTournament.new(:desc => 1.0).desc.should be_an_instance_of(Float)
-        ICU::RatedTournament.new.desc.should be_nil
+        expect(ICU::RatedTournament.new(:desc => 'Irish Championship 2010').desc).to eq('Irish Championship 2010')
+        expect(ICU::RatedTournament.new(:desc => 1.0).desc).to be_an_instance_of(Float)
+        expect(ICU::RatedTournament.new.desc).to be_nil
       end
 
       it "a tournament can have an optional start date" do
-        ICU::RatedTournament.new(:start => '2010-01-01').start.should be_a(Date)
-        ICU::RatedTournament.new(:start => '03/06/2013').start.to_s.should == '2013-06-03'
-        ICU::RatedTournament.new(:start => Date.parse('1955-11-09')).start.to_s.should == '1955-11-09'
-        ICU::RatedTournament.new.start.should be_nil
-        lambda { ICU::RatedTournament.new(:start => 'error') }.should raise_error
+        expect(ICU::RatedTournament.new(:start => '2010-01-01').start).to be_a(Date)
+        expect(ICU::RatedTournament.new(:start => '03/06/2013').start.to_s).to eq('2013-06-03')
+        expect(ICU::RatedTournament.new(:start => Date.parse('1955-11-09')).start.to_s).to eq('1955-11-09')
+        expect(ICU::RatedTournament.new.start).to be_nil
+        expect { ICU::RatedTournament.new(:start => 'error') }.to raise_error
       end
 
       it "should have setters for the optional arguments" do
         t = ICU::RatedTournament.new
         t.desc=("Championship")
         t.start=("2010-07-01")
-        t.desc.should == "Championship"
-        t.start.should == Date.parse("2010-07-01")
+        expect(t.desc).to eq("Championship")
+        expect(t.start).to eq(Date.parse("2010-07-01"))
       end
     end
 
@@ -34,22 +34,22 @@ module ICU
 
       it "should set a K-factor of 16 for players with rating >= 2100" do
         @p = @t.add_player(1, :rating => 2200, :kfactor => { :dob => "1955-11-09", :joined => "1976-09-01" })
-        @p.kfactor.should == 16
+        expect(@p.kfactor).to eq(16)
       end
 
       it "should set a K-factor of 40 for players with rating < 2100 and age < 21" do
         @p = @t.add_player(1, :rating => 2000, :kfactor => { :dob => "1995-01-10", :joined => "2009-09-01" })
-        @p.kfactor.should == 40
+        expect(@p.kfactor).to eq(40)
       end
 
       it "should set a K-factor of 32 for players with rating < 2100, age >= 21 and experience < 8" do
         @p = @t.add_player(1, :rating => 2000, :kfactor => { :dob => "1975-01-10", :joined => "2005-09-01" })
-        @p.kfactor.should == 32
+        expect(@p.kfactor).to eq(32)
       end
 
       it "should set a K-factor of 24 for players with rating < 2100, age >= 21 and experience >= 8" do
         @p = @t.add_player(1, :rating => 2000, :kfactor => { :dob => "1975-01-10", :joined => "1995-09-01" })
-        @p.kfactor.should == 24
+        expect(@p.kfactor).to eq(24)
       end
     end
 
@@ -61,15 +61,15 @@ module ICU
       end
 
       it "should return the players in number-order" do
-        @t.players.size.should == 2
-        @t.players[0].num.should == 1
-        @t.players[1].num.should == 2
+        expect(@t.players.size).to eq(2)
+        expect(@t.players[0].num).to eq(1)
+        expect(@t.players[1].num).to eq(2)
       end
 
       it "should return the player object with the matching number" do
-        @t.player(1).num.should == 1
-        @t.player(2).num.should == 2
-        @t.player(3).should be_nil
+        expect(@t.player(1).num).to eq(1)
+        expect(@t.player(2).num).to eq(2)
+        expect(@t.player(3)).to be_nil
       end
     end
 
@@ -83,54 +83,54 @@ module ICU
 
       it "should be added to both players" do
         @t.add_result(1, @p1, @p2, 'L')
-        @p1.results.size.should == 1
-        @p1.results[0].should == ICU::RatedResult.new(1, @p2, 'L')
-        @p2.results.size.should == 1
-        @p2.results[0].should == ICU::RatedResult.new(1, @p1, 'W')
-        @p3.results.size.should == 0
+        expect(@p1.results.size).to eq(1)
+        expect(@p1.results[0]).to eq(ICU::RatedResult.new(1, @p2, 'L'))
+        expect(@p2.results.size).to eq(1)
+        expect(@p2.results[0]).to eq(ICU::RatedResult.new(1, @p1, 'W'))
+        expect(@p3.results.size).to eq(0)
         @t.add_result(2, @p3, @p2, 'W')
-        @p1.results.size.should == 1
-        @p2.results.size.should == 2
-        @p2.results[0].should == ICU::RatedResult.new(1, @p1, 'W')
-        @p2.results[1].should == ICU::RatedResult.new(2, @p3, 'L')
-        @p3.results.size.should == 1
-        @p3.results[0].should == ICU::RatedResult.new(2, @p2, 'W')
+        expect(@p1.results.size).to eq(1)
+        expect(@p2.results.size).to eq(2)
+        expect(@p2.results[0]).to eq(ICU::RatedResult.new(1, @p1, 'W'))
+        expect(@p2.results[1]).to eq(ICU::RatedResult.new(2, @p3, 'L'))
+        expect(@p3.results.size).to eq(1)
+        expect(@p3.results[0]).to eq(ICU::RatedResult.new(2, @p2, 'W'))
       end
 
       it "player objects or numbers can be used" do
-        lambda { @t.add_result(1, @p1, @p2, 'L') }.should_not raise_error
-        lambda { @t.add_result(2, 1, 2, 'W') }.should_not raise_error
+        expect { @t.add_result(1, @p1, @p2, 'L') }.not_to raise_error
+        expect { @t.add_result(2, 1, 2, 'W') }.not_to raise_error
       end
 
       it "the player numbers should exist already in the tournament" do
-        lambda { @t.add_result(2, 1, 4, 'W') }.should raise_error(/player number.*4/)
-        lambda { @t.add_result(2, 5, 2, 'W') }.should raise_error(/player number.*5/)
+        expect { @t.add_result(2, 1, 4, 'W') }.to raise_error(/player number.*4/)
+        expect { @t.add_result(2, 5, 2, 'W') }.to raise_error(/player number.*5/)
       end
 
       it "adding precisely the same result more than once is okay and changes nothing" do
         @t.add_result(1, @p1, @p2, 'L')
         @t.add_result(1, @p1, @p2, 'L')
         @t.add_result(1, @p2, @p1, 'W')
-        @p1.results.size.should == 1
-        @p2.results.size.should == 1
+        expect(@p1.results.size).to eq(1)
+        expect(@p2.results.size).to eq(1)
       end
 
       it "a player cannot have two different results in the same round" do
         @t.add_result(1, @p1, @p2, 'L')
-        lambda { @t.add_result(1, @p1, @p2, 'W') }.should raise_error(/inconsistent/)
-        lambda { @t.add_result(1, @p1, @p3, 'W') }.should raise_error(/inconsistent/)
-        lambda { @t.add_result(1, @p3, @p2, 'W') }.should raise_error(/inconsistent/)
+        expect { @t.add_result(1, @p1, @p2, 'W') }.to raise_error(/inconsistent/)
+        expect { @t.add_result(1, @p1, @p3, 'W') }.to raise_error(/inconsistent/)
+        expect { @t.add_result(1, @p3, @p2, 'W') }.to raise_error(/inconsistent/)
       end
 
       it "players cannot have results against themselves" do
-        lambda { @t.add_result(1, @p1, @p1, 'W') }.should raise_error(/against.*themsel(f|ves)/)
+        expect { @t.add_result(1, @p1, @p1, 'W') }.to raise_error(/against.*themsel(f|ves)/)
       end
     end
 
     context "#rate - corner case - tournament is empy" do
       it "should not throw an exception" do
         @t = ICU::RatedTournament.new
-        lambda { @t.rate! }.should_not raise_error
+        expect { @t.rate! }.not_to raise_error
       end
     end
 
@@ -151,29 +151,29 @@ module ICU
       it "before the tournament is rated" do
         (1..4).each do |num|
           p = @t.player(num)
-          p.expected_score.should == 0.0
-          p.rating_change.should == 0.0
-          p.new_rating.should == p.rating
+          expect(p.expected_score).to eq(0.0)
+          expect(p.rating_change).to eq(0.0)
+          expect(p.new_rating).to eq(p.rating)
         end
       end
 
       it "after the tournament is rated" do
         @t.rate!
 
-        @t.player(1).expected_score.should be_within(0.001).of(2.249)
-        @t.player(2).expected_score.should be_within(0.001).of(1.760)
-        @t.player(3).expected_score.should be_within(0.001).of(1.240)
-        @t.player(4).expected_score.should be_within(0.001).of(0.751)
+        expect(@t.player(1).expected_score).to be_within(0.001).of(2.249)
+        expect(@t.player(2).expected_score).to be_within(0.001).of(1.760)
+        expect(@t.player(3).expected_score).to be_within(0.001).of(1.240)
+        expect(@t.player(4).expected_score).to be_within(0.001).of(0.751)
 
-        @t.player(1).rating_change.should be_within(0.01).of(7.51)
-        @t.player(2).rating_change.should be_within(0.01).of(4.81)
-        @t.player(3).rating_change.should be_within(0.01).of(-7.21)
-        @t.player(4).rating_change.should be_within(0.01).of(-30.05)
+        expect(@t.player(1).rating_change).to be_within(0.01).of(7.51)
+        expect(@t.player(2).rating_change).to be_within(0.01).of(4.81)
+        expect(@t.player(3).rating_change).to be_within(0.01).of(-7.21)
+        expect(@t.player(4).rating_change).to be_within(0.01).of(-30.05)
 
-        @t.player(1).new_rating.should be_within(0.1).of(2207.5)
-        @t.player(2).new_rating.should be_within(0.1).of(2104.8)
-        @t.player(3).new_rating.should be_within(0.1).of(1992.8)
-        @t.player(4).new_rating.should be_within(0.1).of(1870.0)
+        expect(@t.player(1).new_rating).to be_within(0.1).of(2207.5)
+        expect(@t.player(2).new_rating).to be_within(0.1).of(2104.8)
+        expect(@t.player(3).new_rating).to be_within(0.1).of(1992.8)
+        expect(@t.player(4).new_rating).to be_within(0.1).of(1870.0)
       end
     end
 
@@ -229,8 +229,8 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_within(0.001).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
+          expect(p.expected_score).to be_within(0.001).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
         end
       end
 
@@ -245,8 +245,8 @@ module ICU
         ].each do |item|
           num, ytd_performance, tournament_performance = item
           p = @t.player(num)
-          p.performance.should_not be_within(0.5).of(ytd_performance)
-          p.performance.should be_within(0.5).of(tournament_performance)
+          expect(p.performance).not_to be_within(0.5).of(ytd_performance)
+          expect(p.performance).to be_within(0.5).of(tournament_performance)
         end
       end
     end
@@ -263,10 +263,10 @@ module ICU
       end
 
       it "should get same results as ICU rating database" do
-        @t.player(1).expected_score.should be_within(0.001).of(1.689)
-        @t.player(2).expected_score.should be_within(0.001).of(1.311)
-        @t.player(1).new_rating.should be_within(0.5).of(1378)
-        @t.player(2).new_rating.should be_within(0.5).of(1261)
+        expect(@t.player(1).expected_score).to be_within(0.001).of(1.689)
+        expect(@t.player(2).expected_score).to be_within(0.001).of(1.311)
+        expect(@t.player(1).new_rating).to be_within(0.5).of(1378)
+        expect(@t.player(2).new_rating).to be_within(0.5).of(1261)
       end
     end
 
@@ -342,9 +342,9 @@ module ICU
         (3..20).each do |num|
           unless num == 13
             p = @t.player(num)
-            p.expected_score.should_not == 0.0
-            p.should_not respond_to(:rating_change)
-            p.new_rating.should == p.rating
+            expect(p.expected_score).not_to eq(0.0)
+            expect(p).not_to respond_to(:rating_change)
+            expect(p.new_rating).to eq(p.rating)
           end
         end
       end
@@ -371,7 +371,7 @@ module ICU
         ].each do |item|
           num, performance = item
           p = @t.player(num)
-          p.performance.should == performance
+          expect(p.performance).to eq(performance)
         end
       end
 
@@ -379,13 +379,13 @@ module ICU
         af = @t.player(1)
         pc = @t.player(2)
 
-        af.score.should == 4.5
-        af.expected_score.should be_within(0.001).of(6.054)
-        af.new_rating.should be_within(0.5).of(2080)
+        expect(af.score).to eq(4.5)
+        expect(af.expected_score).to be_within(0.001).of(6.054)
+        expect(af.new_rating).to be_within(0.5).of(2080)
 
-        pc.score.should == 4.0
-        pc.expected_score.should be_within(0.001).of(3.685)
-        pc.new_rating.should be_within(0.5).of(1984)
+        expect(pc.score).to eq(4.0)
+        expect(pc.expected_score).to be_within(0.001).of(3.685)
+        expect(pc.new_rating).to be_within(0.5).of(1984)
       end
     end
 
@@ -534,9 +534,9 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
-          p.results.inject(p.rating){ |t,r| t + r.rating_change }.should be_within(0.5).of(new_rating)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
+          expect(p.results.inject(p.rating){ |t,r| t + r.rating_change }).to be_within(0.5).of(new_rating)
         end
       end
 
@@ -547,15 +547,15 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
         end
       end
 
       it "players who didn't play any rated games should not change their rating" do
         p = @t.player(15)
-        p.expected_score.should == 0
-        p.new_rating.should == p.rating
+        expect(p.expected_score).to eq(0)
+        expect(p.new_rating).to eq(p.rating)
       end
     end
 
@@ -608,8 +608,8 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
         end
       end
     end
@@ -660,10 +660,10 @@ module ICU
         ].each do |item|
           num, score, expected_score, new_rating, bonus = item
           p = @t.player(num)
-          p.score.should == score
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
-          p.bonus.should == bonus
+          expect(p.score).to eq(score)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
+          expect(p.bonus).to eq(bonus)
         end
       end
 
@@ -679,11 +679,11 @@ module ICU
           num, pre_bonus = item
           p = @t.player(num)
           if pre_bonus
-            p.pb_rating.should be_kind_of Fixnum
-            p.pb_performance.should be_kind_of Fixnum
+            expect(p.pb_rating).to be_kind_of Fixnum
+            expect(p.pb_performance).to be_kind_of Fixnum
           else
-            p.pb_rating.should be_nil
-            p.pb_performance.should be_nil
+            expect(p.pb_rating).to be_nil
+            expect(p.pb_performance).to be_nil
           end
         end
       end
@@ -733,22 +733,22 @@ module ICU
         ].each do |item|
           num, score, expected_score, performance = item
           p = @t.player(num)
-          p.score.should == score
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.performance.should be_within(0.5).of(performance)
+          expect(p.score).to eq(score)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.performance).to be_within(0.5).of(performance)
           if num == 1
-            p.new_rating.should be_within(0.5).of(1836)
-            p.bonus.should == 71
+            expect(p.new_rating).to be_within(0.5).of(1836)
+            expect(p.bonus).to eq(71)
           else
-            p.new_rating.should == p.rating
+            expect(p.new_rating).to eq(p.rating)
           end
         end
       end
 
       it "players eligible for a bonus should have pre-bonus data" do
         p = @t.player(1)
-        p.pb_rating.should be_kind_of Fixnum
-        p.pb_performance.should be_kind_of Fixnum
+        expect(p.pb_rating).to be_kind_of Fixnum
+        expect(p.pb_performance).to be_kind_of Fixnum
       end
     end
 
@@ -798,11 +798,11 @@ module ICU
         ].each do |item|
           num, score, expected_score, performance, new_rating, bonus = item
           p = @t.player(num)
-          p.score.should == score
-          p.bonus.should == bonus if bonus
-          p.performance.should be_within(0.5).of(performance)
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
+          expect(p.score).to eq(score)
+          expect(p.bonus).to eq(bonus) if bonus
+          expect(p.performance).to be_within(0.5).of(performance)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
         end
       end
     end
@@ -858,11 +858,11 @@ module ICU
         @m.each do |item|
           num, score, expected_score, performance, new_rating, bonus = item
           p = @t.player(num)
-          p.score.should == score
-          p.bonus.should == bonus if bonus
-          p.performance.should be_within(num == 2 ? 0.6 : 0.5).of(performance)
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
+          expect(p.score).to eq(score)
+          expect(p.bonus).to eq(bonus) if bonus
+          expect(p.performance).to be_within(num == 2 ? 0.6 : 0.5).of(performance)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
         end
       end
 
@@ -871,11 +871,11 @@ module ICU
         @m.each do |item|
           num, score, expected_score, performance, new_rating, bonus = item
           p = @t.player(num)
-          p.score.should == score
-          p.bonus.should == bonus if bonus
-          p.performance.should be_within(num == 2 ? 0.6 : 0.5).of(performance)
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
+          expect(p.score).to eq(score)
+          expect(p.bonus).to eq(bonus) if bonus
+          expect(p.performance).to be_within(num == 2 ? 0.6 : 0.5).of(performance)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
         end
       end
 
@@ -885,11 +885,11 @@ module ICU
         @m.each do |item|
           num, score, expected_score, performance, new_rating, bonus = item
           p = @t.player(num)
-          p.score.should == score
-          p.bonus.should == 0 if bonus
-          p.performance.should_not be_within(1.0).of(performance)
-          p.expected_score.should_not be_within(0.01).of(expected_score)
-          p.new_rating.should_not be_within(1.0).of(new_rating)
+          expect(p.score).to eq(score)
+          expect(p.bonus).to eq(0) if bonus
+          expect(p.performance).not_to be_within(1.0).of(performance)
+          expect(p.expected_score).not_to be_within(0.01).of(expected_score)
+          expect(p.new_rating).not_to be_within(1.0).of(new_rating)
         end
       end
     end
@@ -928,16 +928,16 @@ module ICU
         ].each do |item|
           num, expected_score, new_rating = item
           p = @t.player(num)
-          p.expected_score.should be_within(0.01).of(expected_score)
-          p.new_rating.should be_within(0.5).of(new_rating)
+          expect(p.expected_score).to be_within(0.01).of(expected_score)
+          expect(p.new_rating).to be_within(0.5).of(new_rating)
         end
       end
 
       it "should not rate players that have no rateable games" do
         [4, 5, 6].each do |num|
           p = @t.player(num)
-          p.expected_score.should == 0.0
-          p.new_rating.should be_nil
+          expect(p.expected_score).to eq(0.0)
+          expect(p.new_rating).to be_nil
         end
       end
     end
@@ -1006,19 +1006,19 @@ module ICU
 
       it "should behave like the Access system" do
         @t.rate!
-        @p1.new_rating.should be_within(0.5).of(1511)
-        @p1.expected_score.should be_within(0.001).of(2.868)
-        @p1.bonus.should == 0
-        @p2.new_rating.should be_within(0.5).of(1705)
+        expect(@p1.new_rating).to be_within(0.5).of(1511)
+        expect(@p1.expected_score).to be_within(0.001).of(2.868)
+        expect(@p1.bonus).to eq(0)
+        expect(@p2.new_rating).to be_within(0.5).of(1705)
       end
 
       it "should behave like ratings.ciu.ie" do
         @p1.instance_eval { @kfactor = 32 }
         @t.rate!
-        @p1.new_rating.should be_within(0.5).of(1603)
-        @p1.expected_score.should be_within(0.001).of(2.868)
-        @p1.bonus.should be_within(1).of(63)
-        @p2.new_rating.should be_within(0.5).of(1722)
+        expect(@p1.new_rating).to be_within(0.5).of(1603)
+        expect(@p1.expected_score).to be_within(0.001).of(2.868)
+        expect(@p1.bonus).to be_within(1).of(63)
+        expect(@p2.new_rating).to be_within(0.5).of(1722)
       end
     end
 
@@ -1222,69 +1222,69 @@ module ICU
       end
 
       it "should be setup properly" do
-        @p.desc.should  == "Jonathon Peoples"
-        @o1.desc.should == "Ross Beatty"
-        @o2.desc.should == "Shane Melaugh"
-        @o3.desc.should == "Piotr Baczkowski"
-        @o4.desc.should == "Tom McGrath"
-        @o5.desc.should == "Joe McEntegert"
-        @o6.desc.should == "David Halpenny"
+        expect(@p.desc).to  eq("Jonathon Peoples")
+        expect(@o1.desc).to eq("Ross Beatty")
+        expect(@o2.desc).to eq("Shane Melaugh")
+        expect(@o3.desc).to eq("Piotr Baczkowski")
+        expect(@o4.desc).to eq("Tom McGrath")
+        expect(@o5.desc).to eq("Joe McEntegert")
+        expect(@o6.desc).to eq("David Halpenny")
 
-        @p.type.should  == :unrated
-        @o1.type.should == :provisional
-        @o2.type.should == :rated
-        @o3.type.should == :provisional
-        @o4.type.should == :rated
-        @o5.type.should == :unrated
-        @o6.type.should == :provisional
+        expect(@p.type).to  eq(:unrated)
+        expect(@o1.type).to eq(:provisional)
+        expect(@o2.type).to eq(:rated)
+        expect(@o3.type).to eq(:provisional)
+        expect(@o4.type).to eq(:rated)
+        expect(@o5.type).to eq(:unrated)
+        expect(@o6.type).to eq(:provisional)
 
-        @o2.rating.should == 683
-        @o4.rating.should == 1058
+        expect(@o2.rating).to eq(683)
+        expect(@o4.rating).to eq(1058)
 
-        @t.iterations1.should be_nil
-        @t.iterations2.should be_nil
+        expect(@t.iterations1).to be_nil
+        expect(@t.iterations2).to be_nil
       end
 
       it "should produce inconsistent results with original algorithm" do
         @t.rate!
 
-        @p.new_rating.should be_within(0.5).of(763)  # the original calculation
+        expect(@p.new_rating).to be_within(0.5).of(763)  # the original calculation
 
-        @o1.new_rating.should == @o1.performance
-        @o2.bonus.should == 0
-        @o3.new_rating.should == @o3.performance
-        @o4.bonus.should == 0
-        @o5.new_rating.should == @o5.performance
-        @o6.new_rating.should == @o6.performance
+        expect(@o1.new_rating).to eq(@o1.performance)
+        expect(@o2.bonus).to eq(0)
+        expect(@o3.new_rating).to eq(@o3.performance)
+        expect(@o4.bonus).to eq(0)
+        expect(@o5.new_rating).to eq(@o5.performance)
+        expect(@o6.new_rating).to eq(@o6.performance)
 
         ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.new_rating(:opponent) }
 
         average_of_ratings = ratings.inject(0.0){ |m,r| m = m + r } / 6.0
-        average_of_ratings.should_not be_within(0.5).of(@p.new_rating)
+        expect(average_of_ratings).not_to be_within(0.5).of(@p.new_rating)
 
-        @t.iterations1.should be > 1
-        @t.iterations2.should == 1
+        expect(@t.iterations1).to be > 1
+        expect(@t.iterations2).to eq(1)
       end
 
       it "should produce consistent results with version 1 algorithm" do
         @t.rate!(version: 1)
 
-        @p.new_rating.should_not be_within(0.5).of(763)  # the new calculation is different
+        expect(@p.new_rating).not_to be_within(0.5).of(763)  # the new calculation is different
 
-        @o1.new_rating.should == @o1.performance
-        @o2.bonus.should == 0
-        @o3.new_rating.should == @o3.performance
-        @o4.bonus.should == 0
-        @o5.new_rating.should == @o5.performance
-        @o6.new_rating.should == @o6.performance
+        expect(@o1.new_rating).to eq(@o1.performance)
+        expect(@o2.bonus).to eq(0)
+        expect(@o3.new_rating).to eq(@o3.performance)
+        expect(@o4.bonus).to eq(0)
+        expect(@o5.new_rating).to eq(@o5.performance)
+        expect(@o6.new_rating).to eq(@o6.performance)
 
         ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.new_rating(:opponent) }
 
         average_of_ratings = ratings.inject(0.0){ |m,r| m = m + r } / 6.0
-        average_of_ratings.should be_within(0.5).of(@p.new_rating)
+        expect(average_of_ratings).to be_within(0.5).of(@p.new_rating)
 
-        @t.iterations1.should be > 1
-        @t.iterations2.should be > 1
+        expect(@t.iterations1).to be > 1
+        expect(@t.iterations2).to be > 1
       end
     end
 
@@ -1998,111 +1998,111 @@ module ICU
       end
 
       it "should be setup properly" do
-        @p.desc.should  == "Sasha-Ettore Faleschini"
-        @o1.desc.should == "John P. Dunne"
-        @o2.desc.should == "Jack Fitzgerald"
-        @o3.desc.should == "Mikolaj Glegolski"
-        @o4.desc.should == "Daniel Boland"
-        @o5.desc.should == "Noel Keating"
-        @o6.desc.should == "Cathal Minnock"
+        expect(@p.desc).to  eq("Sasha-Ettore Faleschini")
+        expect(@o1.desc).to eq("John P. Dunne")
+        expect(@o2.desc).to eq("Jack Fitzgerald")
+        expect(@o3.desc).to eq("Mikolaj Glegolski")
+        expect(@o4.desc).to eq("Daniel Boland")
+        expect(@o5.desc).to eq("Noel Keating")
+        expect(@o6.desc).to eq("Cathal Minnock")
 
-        @p.type.should  == :unrated
-        @o1.type.should == :rated
-        @o2.type.should == :rated
-        @o3.type.should == :rated
-        @o4.type.should == :rated
-        @o5.type.should == :rated
-        @o6.type.should == :rated
+        expect(@p.type).to  eq(:unrated)
+        expect(@o1.type).to eq(:rated)
+        expect(@o2.type).to eq(:rated)
+        expect(@o3.type).to eq(:rated)
+        expect(@o4.type).to eq(:rated)
+        expect(@o5.type).to eq(:rated)
+        expect(@o6.type).to eq(:rated)
 
-        @o1.rating.should == 946
-        @o2.rating.should == 913
-        @o3.rating.should == 841
-        @o4.rating.should == 793
-        @o5.rating.should == 667
-        @o6.rating.should == 917
+        expect(@o1.rating).to eq(946)
+        expect(@o2.rating).to eq(913)
+        expect(@o3.rating).to eq(841)
+        expect(@o4.rating).to eq(793)
+        expect(@o5.rating).to eq(667)
+        expect(@o6.rating).to eq(917)
 
-        @t.iterations1.should be_nil
-        @t.iterations2.should be_nil
+        expect(@t.iterations1).to be_nil
+        expect(@t.iterations2).to be_nil
       end
 
       it "should produce inconsistent results with original algorithm" do
         @t.rate!
 
-        @p.new_rating.should == @p.performance
+        expect(@p.new_rating).to eq(@p.performance)
 
-        @o1.bonus.should == 16
-        @o2.bonus.should == 0
-        @o3.bonus.should == 0
-        @o4.bonus.should == 0
-        @o5.bonus.should == 0
-        @o6.bonus.should == 0
+        expect(@o1.bonus).to eq(16)
+        expect(@o2.bonus).to eq(0)
+        expect(@o3.bonus).to eq(0)
+        expect(@o4.bonus).to eq(0)
+        expect(@o5.bonus).to eq(0)
+        expect(@o6.bonus).to eq(0)
 
         ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus == 0 ? o.rating : o.new_rating }
 
         performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0 - 400.0 / 3.0
-        performance.should_not be_within(0.5).of(@p.new_rating)
+        expect(performance).not_to be_within(0.5).of(@p.new_rating)
 
-        @t.iterations1.should be > 1
-        @t.iterations2.should == 1
+        expect(@t.iterations1).to be > 1
+        expect(@t.iterations2).to eq(1)
       end
 
       it "should produce inconsistent results with version 1 algorithm" do
         @t.rate!(version: 1)
 
-        @p.new_rating.should == @p.performance
+        expect(@p.new_rating).to eq(@p.performance)
 
-        @o1.bonus.should == 16
-        @o2.bonus.should == 0
-        @o3.bonus.should == 0
-        @o4.bonus.should == 0
-        @o5.bonus.should == 0
-        @o6.bonus.should == 0
+        expect(@o1.bonus).to eq(16)
+        expect(@o2.bonus).to eq(0)
+        expect(@o3.bonus).to eq(0)
+        expect(@o4.bonus).to eq(0)
+        expect(@o5.bonus).to eq(0)
+        expect(@o6.bonus).to eq(0)
 
         ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus == 0 ? o.rating : o.new_rating }
 
         performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0 - 400.0 / 3.0
-        performance.should_not be_within(0.5).of(@p.new_rating)
+        expect(performance).not_to be_within(0.5).of(@p.new_rating)
 
-        @t.iterations1.should be > 1
-        @t.iterations2.should be > 1
+        expect(@t.iterations1).to be > 1
+        expect(@t.iterations2).to be > 1
       end
 
       it "should produce consistent results with version 2 algorithm" do
         @t.rate!(version: 2)
 
-        @o1.bonus.should == 0  # no bonus this time because it comes from 2nd phase
-        @o2.bonus.should == 0
-        @o3.bonus.should == 0
-        @o4.bonus.should == 0
-        @o5.bonus.should == 0
-        @o6.bonus.should == 0
+        expect(@o1.bonus).to eq(0)  # no bonus this time because it comes from 2nd phase
+        expect(@o2.bonus).to eq(0)
+        expect(@o3.bonus).to eq(0)
+        expect(@o4.bonus).to eq(0)
+        expect(@o5.bonus).to eq(0)
+        expect(@o6.bonus).to eq(0)
 
         ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus == 0 ? o.rating : o.new_rating }
 
         performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0 - 400.0 / 3.0
-        performance.should be_within(0.5).of(@p.new_rating)
+        expect(performance).to be_within(0.5).of(@p.new_rating)
 
-        @t.iterations1.should be > 1
-        @t.iterations2.should be > 1
+        expect(@t.iterations1).to be > 1
+        expect(@t.iterations2).to be > 1
       end
 
       it "should produce consistent results with version 3 algorithm" do
         @t.rate!(version: 3)
 
-        @o1.bonus.should == 0  # no bonus this time because it comes from 2nd phase
-        @o2.bonus.should == 0
-        @o3.bonus.should == 0
-        @o4.bonus.should == 0
-        @o5.bonus.should == 0
-        @o6.bonus.should == 0
+        expect(@o1.bonus).to eq(0)  # no bonus this time because it comes from 2nd phase
+        expect(@o2.bonus).to eq(0)
+        expect(@o3.bonus).to eq(0)
+        expect(@o4.bonus).to eq(0)
+        expect(@o5.bonus).to eq(0)
+        expect(@o6.bonus).to eq(0)
 
         ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.bonus == 0 ? o.rating : o.new_rating }
 
         performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0 - 400.0 / 3.0
-        performance.should be_within(0.5).of(@p.new_rating)
+        expect(performance).to be_within(0.5).of(@p.new_rating)
 
-        @t.iterations1.should be > 1
-        @t.iterations2.should be > 1
+        expect(@t.iterations1).to be > 1
+        expect(@t.iterations2).to be > 1
       end
     end
 
@@ -2210,50 +2210,50 @@ module ICU
       end
 
       it "should be setup properly" do
-        @p.desc.should  == "Deirdre Turner"
-        @o1.desc.should == "John P. Dunne"
-        @o2.desc.should == "Jordan O'Sullivan"
-        @o3.desc.should == "Ruairi Freeman"
-        @o4.desc.should == "Joe Cronin"
-        @o5.desc.should == "Jeffrey Alfred"
-        @o6.desc.should == "Roisin MacNamee"
+        expect(@p.desc).to  eq("Deirdre Turner")
+        expect(@o1.desc).to eq("John P. Dunne")
+        expect(@o2.desc).to eq("Jordan O'Sullivan")
+        expect(@o3.desc).to eq("Ruairi Freeman")
+        expect(@o4.desc).to eq("Joe Cronin")
+        expect(@o5.desc).to eq("Jeffrey Alfred")
+        expect(@o6.desc).to eq("Roisin MacNamee")
 
-        @p.type.should  == :unrated
-        @o1.type.should == :rated
-        @o2.type.should == :unrated
-        @o3.type.should == :rated
-        @o4.type.should == :rated
-        @o5.type.should == :rated
-        @o6.type.should == :provisional
+        expect(@p.type).to  eq(:unrated)
+        expect(@o1.type).to eq(:rated)
+        expect(@o2.type).to eq(:unrated)
+        expect(@o3.type).to eq(:rated)
+        expect(@o4.type).to eq(:rated)
+        expect(@o5.type).to eq(:rated)
+        expect(@o6.type).to eq(:provisional)
 
-        @o1.rating.should == 980
-        @o2.should_not respond_to(:rating)
-        @o3.rating.should == 537
-        @o4.rating.should == 682
-        @o5.rating.should == 1320
-        @o6.rating.should == 460
+        expect(@o1.rating).to eq(980)
+        expect(@o2).not_to respond_to(:rating)
+        expect(@o3.rating).to eq(537)
+        expect(@o4.rating).to eq(682)
+        expect(@o5.rating).to eq(1320)
+        expect(@o6.rating).to eq(460)
 
-        @t.iterations1.should be_nil
-        @t.iterations2.should be_nil
+        expect(@t.iterations1).to be_nil
+        expect(@t.iterations2).to be_nil
       end
 
       it "should produce consistent results with version 2 algorithm" do
         @t.rate!(version: 2)
 
-        @p.new_rating.should == @p.performance
+        expect(@p.new_rating).to eq(@p.performance)
 
-        @o1.bonus.should == 23
-        @o3.bonus.should == 0
-        @o4.bonus.should == 0
-        @o5.bonus.should == 0
+        expect(@o1.bonus).to eq(23)
+        expect(@o3.bonus).to eq(0)
+        expect(@o4.bonus).to eq(0)
+        expect(@o5.bonus).to eq(0)
 
         ratings = [@o1, @o2, @o3, @o4, @o5, @o6].map { |o| o.new_rating(:opponent) }
 
         performance = ratings.inject(0.0){ |m,r| m = m + r } / 6.0
-        performance.should be_within(0.1).of(@p.new_rating)
+        expect(performance).to be_within(0.1).of(@p.new_rating)
 
-        @t.iterations1.should be > 1
-        @t.iterations2.should be > 1
+        expect(@t.iterations1).to be > 1
+        expect(@t.iterations2).to be > 1
       end
     end
 
@@ -2393,56 +2393,56 @@ module ICU
       end
 
       it "should be setup properly" do
-        @p.desc.should  == "Kieran O'Riordan"
-        @o1.desc.should == "Jonathan Kiely"
-        @o2.desc.should == "Donal O'Hallahan"
-        @o3.desc.should == "Arnaud, Aoustin"
-        @o4.desc.should == "Ronan Magee"
-        @o5.desc.should == "Barry Foran"
-        @o6.desc.should == "Henk De Jonge"
+        expect(@p.desc).to  eq("Kieran O'Riordan")
+        expect(@o1.desc).to eq("Jonathan Kiely")
+        expect(@o2.desc).to eq("Donal O'Hallahan")
+        expect(@o3.desc).to eq("Arnaud, Aoustin")
+        expect(@o4.desc).to eq("Ronan Magee")
+        expect(@o5.desc).to eq("Barry Foran")
+        expect(@o6.desc).to eq("Henk De Jonge")
 
-        @p.type.should  == :rated
-        @o1.type.should == :rated
-        @o2.type.should == :rated
-        @o3.type.should == :rated
-        @o4.type.should == :rated
-        @o5.type.should == :rated
-        @o6.type.should == :rated
+        expect(@p.type).to  eq(:rated)
+        expect(@o1.type).to eq(:rated)
+        expect(@o2.type).to eq(:rated)
+        expect(@o3.type).to eq(:rated)
+        expect(@o4.type).to eq(:rated)
+        expect(@o5.type).to eq(:rated)
+        expect(@o6.type).to eq(:rated)
 
-        @p.rating.should  == 1883
-        @o1.rating.should == 1113
-        @o2.rating.should == 1465
-        @o3.rating.should == 1984
-        @o4.rating.should == 1957
-        @o5.rating.should == 1417
-        @o6.rating.should == 1977
+        expect(@p.rating).to  eq(1883)
+        expect(@o1.rating).to eq(1113)
+        expect(@o2.rating).to eq(1465)
+        expect(@o3.rating).to eq(1984)
+        expect(@o4.rating).to eq(1957)
+        expect(@o5.rating).to eq(1417)
+        expect(@o6.rating).to eq(1977)
 
-        @t.iterations1.should be_nil
-        @t.iterations2.should be_nil
+        expect(@t.iterations1).to be_nil
+        expect(@t.iterations2).to be_nil
       end
 
       it "player should not get a bonus because his pre-bonus performance is lower than his post-bonus rating" do
         @t.rate!(version: 2)
 
-        @p.new_rating.should be_within(0.5).of(1924)
+        expect(@p.new_rating).to be_within(0.5).of(1924)
 
-        @p.bonus.should  == 0
-        @o1.bonus.should == 0
-        @o2.bonus.should == 0
-        @o3.bonus.should == 0
-        @o4.bonus.should == 0
-        @o5.bonus.should == 0
-        @o6.bonus.should == 0
+        expect(@p.bonus).to  eq(0)
+        expect(@o1.bonus).to eq(0)
+        expect(@o2.bonus).to eq(0)
+        expect(@o3.bonus).to eq(0)
+        expect(@o4.bonus).to eq(0)
+        expect(@o5.bonus).to eq(0)
+        expect(@o6.bonus).to eq(0)
 
         threshold = @p.rating + 32 + 3 * (@p.results.size - 4)
 
         # He would have got a bonus ...
         pre_cap_bonus = ((@p.pb_rating - threshold).round * 1.25).round
-        pre_cap_bonus.should be > 0
+        expect(pre_cap_bonus).to be > 0
 
         # ... if it wasn't for his low performance.
         post_cap_bonus = @p.pb_performance - @p.pb_rating
-        post_cap_bonus.should be < 0
+        expect(post_cap_bonus).to be < 0
       end
     end
 
@@ -2614,11 +2614,11 @@ module ICU
       end
 
       it "should not converge with version 2 settings" do
-        lambda { @t.rate!(version: 2) }.should raise_error(/performance rating estimation did not converge/)
+        expect { @t.rate!(version: 2) }.to raise_error(/performance rating estimation did not converge/)
       end
 
       it "should converge with version 3 settings (higher maximum number of iterations)" do
-        lambda { @t.rate!(version: 3) }.should_not raise_error
+        expect { @t.rate!(version: 3) }.not_to raise_error
       end
     end
   end

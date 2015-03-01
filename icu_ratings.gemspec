@@ -20,9 +20,9 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.test_files = Dir.glob("spec/*.rb")
   
-  s.add_development_dependency("bundler")
-  s.add_development_dependency("rake")
-  s.add_development_dependency("rspec")
-  s.add_development_dependency("rdoc")
+  s.add_development_dependency("bundler", "~> 1.8")
+  s.add_development_dependency("rake", "~> 10.4")
+  s.add_development_dependency("rspec", "~> 3.2")
+  s.add_development_dependency("rdoc", "~> 4.2")
 end
 

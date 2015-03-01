@@ -29,7 +29,7 @@ task :push do
 end
 
 RSpec::Core::RakeTask.new do |t|
-  t.rspec_opts  = ['--colour --format nested']
+  t.rspec_opts  = ['--colour --format doc']
 end
 
 RDoc::Task.new do |rdoc|
