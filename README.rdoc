@@ -1,3 +1,8 @@
+= New Home
+
+This repository was forked in late 2015 and is now maintained at
+https://github.com/ninkibah/icu_ratings.
+
 = ICU Chess Ratings
 
 For calculating the Elo ratings of players in a chess tournament. The software is a port
